@@ -1,7 +1,8 @@
+use <lib/utils.scad>
 use <lib/gear.scad>
 use <tooth.scad>
 
-DEBUG = true;
+DEBUG = false;
 RENDER_TOOTH = true;
 
 $fn= DEBUG ? 0 : 44;
@@ -74,20 +75,18 @@ module outterRim() {
 }
 
 module innerRim() {
-    module shaft() {
-        chamferZ = HEIGHT - (BEARING_HEIGHT + CHAMFER_HEIGHT);
-        
+    module shaft() {        
         union() {
             // shaft
             cylinder(HEIGHT, r=SHAFT_DIAMETER/2);
             // bearing
-            translate([0, 0, HEIGHT - 4])
+            translate([0, 0, 0])
                 cylinder(BEARING_HEIGHT, r=BEARING_DIAMETER/2);
             // chamfer
-            translate([0, 0, chamferZ]) 
+            translate([0, 0, BEARING_HEIGHT]) 
                 cylinder(CHAMFER_HEIGHT, 
-                    r1=SHAFT_DIAMETER/2, 
-                    r2=BEARING_DIAMETER/2);
+                    r1=BEARING_DIAMETER/2, 
+                    r2=SHAFT_DIAMETER/2);
         };
     }
     
@@ -116,20 +115,27 @@ module spokes() {
 
 mod = diametralPitchToModule(32);
 
-translate([0, 0, HEIGHT + 2]) 
-gear(
-    defGear(60, mod, faceWidth=6,
+gearDef = defGear(60, mod, faceWidth=6,
         shaft=5,
         bearings=[
-            defBearing(10, 4)
-        ])
-);
+            defBearing(10, 4, 1)
+        ]);
 
+translate([0, 0, HEIGHT + 2]) 
+    gear(gearDef);
+
+tipDiameter = prop("tipDiameter", gearDef);
+
+// Spacer
 translate([0, 0, HEIGHT])
-    cylinder(2, r=DIAMETER/2 - 2);
-
-    union() {
-        outterRim();
-        innerRim();
-        spokes();
+    difference() {
+        cylinder(2, r=tipDiameter/2);
+        cylinder(2, r=SHAFT_DIAMETER/2);
     }
+
+// Wheel
+union() {
+    outterRim();
+    innerRim();
+    spokes();
+}
