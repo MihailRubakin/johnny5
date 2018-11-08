@@ -84,14 +84,14 @@ module thread(x, y, z, bolt=0.5, boltRecess=0.5, clearance = 0, pin=[1,1,1]) {
 }
 
 module test() {
-    thread(50, 25, 10, 
+    thread(50, 20, 7, 
         bolt=3.1, 
         boltRecess=5,
         clearance=0.25,
         pin=[10, 5, 5]);
 }
 
-translate([0, -25 + 10 / 2, 0])
+translate([0, -20 + 7 / 2, 0])
     test();
 
 rotate([$t * 45, 0, 0])

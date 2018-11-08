@@ -1,163 +1,122 @@
-DEBUG = true;
+use <lib/gear.scad>
+use <tooth.scad>
 
-ITERATIONS = DEBUG ? 15 : 360;
+DEBUG = true;
+RENDER_TOOTH = true;
 
 $fn= DEBUG ? 0 : 44;
 
-function prop(key, table) = 
-    table[search([key], table)[0]][1];
+ITERATIONS = DEBUG ? 15 : 360;
 
-function flatten(l) = [ for (a = l) for (b = a) b ] ;
+TOOTH_SIZE = [10, 5, 5];
+TOOTH_SPACING = 10;
 
-function circularPitchToModule(pitch) = pitch / PI;
-function diametralPitchToModule(pitch) = 25.4 / pitch;
+TOOTH_COUNT = 9;
+DIAMETER = diameterFromToothCount(TOOTH_SIZE.x, TOOTH_SPACING, TOOTH_COUNT);
 
-// TODO: Switch radius to diameter
-function defBearing(diameter, tickness=1, pos=0) = [
-    [ "diameter", diameter ],
-    [ "tickness", tickness],
-    [ "pos", pos ]
-];
+HEIGHT = 45;
 
-module bearing(bearingDef, faceWidth) {
-    diameter = prop("diameter", bearingDef);
-    tickness = prop("tickness", bearingDef);
-    
-    module _bearing() {
-        cylinder(tickness, r=diameter/2);
-    }
-    
-    posFlag = prop("pos", bearingDef);
-    
-    if (posFlag == 1)  {
-        translate([0, 0, faceWidth - tickness])
-            _bearing();
-    } else {
-        _bearing();
-    }
-}
+SHAFT_DIAMETER = 5;
+BEARING_DIAMETER = 10;
+BEARING_HEIGHT = 4;
+CHAMFER_HEIGHT = 2.5;
 
-module shaft(gearDef) {
-    faceWidth = prop("faceWidth", gearDef);
-    shaft = prop("shaft", gearDef);
-    
-    if(shaft > 0)
-        cylinder(faceWidth, r=shaft/2);
-    
-    bearings = prop("bearings", gearDef);
-    
-    for (bearingDef = bearings)  
-        bearing(bearingDef, faceWidth);
-}
+// Outter rim thickness
+OUTTER_RIM = TOOTH_SIZE.z + 5;
 
-function defGear(tooth, mod=1, pressureAngle=20, faceWidth=1, shaft=0, bearings=undef) =
-    let (
-        referenceDiameter = mod * tooth,
-        pitch = PI * mod,
-        addendum = mod,
-        dedendum = 1.25 * mod
-    )
-    [
-        [ "tooth", tooth],
-        [ "module", mod],
-        [ "pressureAngle", pressureAngle ],
-        [ "faceWidth", faceWidth ],
-        [ "referenceDiameter", referenceDiameter ],
-        [ "tipDiameter", referenceDiameter  + 2 * mod ],
-        [ "rootDiameter", referenceDiameter - 2.5 * mod ],
-        [ "addendum", mod ],
-        [ "dedendum", addendum ],
-        [ "toothDepth", addendum + dedendum ],
-        [ "pitch", pitch ],
-        [ "toothTickness", pitch / 2 ],
-        [ "shaft", shaft ],
-        [ "bearings", bearings ]
-    ];
+// Inner rim diameter
+INNER_RIM = BEARING_DIAMETER + 5;
 
-module linear2D(gearDef) {
-    polygon(getPoints(gearDef));
-    
-    function getPoints(gearDef) = 
-        let(
-            a = prop("pressureAngle", gearDef),
-            z = prop("tooth", gearDef),
-            p = prop("pitch", gearDef),
-            ha = prop("addendum", gearDef),
-            hf= prop("dedendum", gearDef),
-            
-            slope = tan(a) * (ha + hf),
-            flat = (p - 2 * slope) / 2,
-    
-            p1 = flat / 2,
-            p2 = flat / 2 + slope  / 2,
-            p3 = flat / 2 + slope ,
-            p4 = 1.5 * flat + slope ,
-            p5 = 1.5 * flat + 1.5 * slope,
-            p6 = 1.5 * flat + 2 * slope,
-    
-            points = [
-                for(i=[0:z-1]) [
-                    [ i * p, -hf],
-                    [ i * p + p1, -hf],
-                    [ i * p + p2, 0 ],
-                    [ i * p + p3, ha],
-                    [ i * p + p4, ha],
-                    [ i * p + p5, 0 ],
-                    [ i * p + p6, -hf ],
-                    [ (i + 1) * p, -hf ]
-                ]
-            ]
-        ) flatten(concat(
-                [[[0,-hf-2]]],
-                points,
-                [[[p * z, -hf-2]]]));
-}
+SPOKE_COUNT = 8;
+SPOKE_TICKNESS = 3;
 
-module gear2D(gearDef) {
-    r = prop("tipDiameter", gearDef) / 2;
-    ref = prop("referenceDiameter", gearDef) / 2;
-    
-    pitch = prop("pitch", gearDef);
-    tooth = prop("tooth", gearDef);
-    length = pitch * tooth;
-    
-    step = 360 / ITERATIONS;
-    
-    difference() {
-        circle(r);
-        
-        for(i=[0:step:360])
-            rotate([0, 0, i])
-            translate([-length * i/360, -ref, 0])
-              linear2D(gearDef);
-    }
-}
+echo("Tooth count = ", TOOTH_COUNT);
+echo("Diameter = ", DIAMETER);
+echo("Height = ", HEIGHT);
 
-module gear(gearDef) {
-    faceWidth = prop("faceWidth", gearDef);
+
+// TODO: Test with 2D for performance
+// TODO: Add clearance for slots
+module outterRim() {    
     
-    render() {
-        difference() {
-            linear_extrude(faceWidth) gear2D(gearDef);
-            shaft(gearDef);
+    module toothChain() {
+        render() {
+            rotate([90, 0, 0])
+                tooths(TOOTH_SIZE.x, TOOTH_SIZE.y, TOOTH_SIZE.z, TOOTH_COUNT, TOOTH_SPACING);
         }
     }
+
+    module toothRing() {
+        step = 360 / ITERATIONS;
+        circ = PI * DIAMETER;
+        
+        for(i=[0:step:360])
+            rotate([0, 0, -i])
+            translate([-circ * i / 360, DIAMETER / 2, HEIGHT / 2])
+              toothChain();
+    }
+    
+    module rim() {
+        difference() {
+            cylinder(HEIGHT, r=DIAMETER/2);
+            cylinder(HEIGHT, r=DIAMETER/ 2 - OUTTER_RIM);
+        }
+    }
+    
+    if (RENDER_TOOTH) {
+        difference() {
+            rim();
+            toothRing();
+        }
+    } else {
+        rim();
+    }
 }
 
-module spoke(diameter, divisions, tickness, height, center) {
+module innerRim() {
+    module shaft() {
+        chamferZ = HEIGHT - (BEARING_HEIGHT + CHAMFER_HEIGHT);
+        
+        union() {
+            // shaft
+            cylinder(HEIGHT, r=SHAFT_DIAMETER/2);
+            // bearing
+            translate([0, 0, HEIGHT - 4])
+                cylinder(BEARING_HEIGHT, r=BEARING_DIAMETER/2);
+            // chamfer
+            translate([0, 0, chamferZ]) 
+                cylinder(CHAMFER_HEIGHT, 
+                    r1=SHAFT_DIAMETER/2, 
+                    r2=BEARING_DIAMETER/2);
+        };
+    }
     
     difference() {
-        union() for(i = [0:360/divisions:360])
-            rotate([0,0,i]) 
-            translate([-tickness/2,0,0]) 
-                cube([tickness,diameter/2,height]);
-        cylinder(height, r=center/2);
+        cylinder(HEIGHT, r=INNER_RIM / 2);
+        shaft();
     }
+}
+
+module spokes() {
+    // TODO: This is a hack
+    mergeLength = 2;
+    
+    radius = (DIAMETER - INNER_RIM) / 2 - OUTTER_RIM + mergeLength ;
+    
+    module spoke() {
+        translate([(radius + INNER_RIM - mergeLength  / 2) / 2, 0, HEIGHT / 2])
+            cube([radius, SPOKE_TICKNESS, HEIGHT], center=true);
+    }
+    
+    for (i = [0:360/SPOKE_COUNT:360])
+        rotate([0,0,i])
+            spoke();
 }
 
 
 mod = diametralPitchToModule(32);
 
+translate([0, 0, HEIGHT + 2]) 
 gear(
     defGear(60, mod, faceWidth=6,
         shaft=5,
@@ -166,24 +125,11 @@ gear(
         ])
 );
 
-translate([0, 0, 6]) 
+translate([0, 0, HEIGHT])
+    cylinder(2, r=DIAMETER/2 - 2);
+
     union() {
-        difference() {
-            cylinder(45, r=55/2);
-            union() {
-                // shaft
-                cylinder(45, r=5/2);
-                // bearing
-                translate([0, 0, 45 - 4]) cylinder(4, r=10/2);
-                // chamfer
-                translate([0, 0, 45 - 6.5]) 
-                    cylinder(2.55, r1=5/2, r2=10/2);
-                // empty center
-                difference() {
-                    cylinder(45, r=42/2);
-                    cylinder(45, r=15/2);
-                };
-            };
-        };
-        spoke(42, 10, 3, 45, 15);
-    };
+        outterRim();
+        innerRim();
+        spokes();
+    }
