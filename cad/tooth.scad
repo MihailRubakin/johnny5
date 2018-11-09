@@ -1,10 +1,12 @@
-$fn = 16;
-
 use <lib/utils.scad>
 
+function getFragmentCount() = $fn > 0 ? $fn / 2 : 6;
+
 module tooth2D(x, y) {
+    step = 180 / getFragmentCount();
+    
     coords = [
-        for (i = [0:1:180])
+        for (i = [0:step:180])
             [ x * i/180, y* sin(i)]
     ];
         
@@ -14,13 +16,16 @@ module tooth2D(x, y) {
 module tooths2D(x, y, count, spacing=1, base=1) {
     width = x + spacing;
     
+    step = 180 / getFragmentCount();
+    
     coords = flatten(
         [
             for (i = [0:count])
                 concat([
-                    for (j = [0:1:180])
+                    for (j = [0:step:180])
                         [ i * width + x * j/180, y* sin(j)]
                 ], [
+                    [i * width + x, 0],
                     [i * width + x + spacing, 0]
                 ])
         ]);
@@ -55,6 +60,8 @@ module toothsFromDiameter(x, y, z, spacing, diameter) {
             "Lower diameter to ", lower);
     } else {
         count = (circ/ toothSize);
+        
+        // TODO: generate
         echo("Got ", count, " tooths");
     }
 }

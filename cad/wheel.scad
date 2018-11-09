@@ -7,8 +7,6 @@ RENDER_TOOTH = true;
 
 $fn= DEBUG ? 0 : 44;
 
-ITERATIONS = DEBUG ? 15 : 360;
-
 TOOTH_SIZE = [10, 5, 5];
 TOOTH_SPACING = 10;
 
@@ -31,46 +29,69 @@ INNER_RIM = BEARING_DIAMETER + 5;
 SPOKE_COUNT = 8;
 SPOKE_TICKNESS = 3;
 
+ITERATIONS = $fn > 0 ? $fn : TOOTH_COUNT;
+
 echo("Tooth count = ", TOOTH_COUNT);
 echo("Diameter = ", DIAMETER);
 echo("Height = ", HEIGHT);
 
 
-// TODO: Test with 2D for performance
 // TODO: Add clearance for slots
-module outterRim() {    
-    
+module outterRim() {
     module toothChain() {
         render() {
-            rotate([90, 0, 0])
-                tooths(TOOTH_SIZE.x, TOOTH_SIZE.y, TOOTH_SIZE.z, TOOTH_COUNT, TOOTH_SPACING);
+            tooths2D(TOOTH_SIZE.x, TOOTH_SIZE.z, 
+                count=TOOTH_COUNT, 
+                spacing=TOOTH_SPACING);
         }
     }
-
+    
     module toothRing() {
         step = 360 / ITERATIONS;
         circ = PI * DIAMETER;
         
         for(i=[0:step:360])
             rotate([0, 0, -i])
-            translate([-circ * i / 360, DIAMETER / 2, HEIGHT / 2])
+            translate([-circ * i / 360, DIAMETER / 2, 0])
+            mirror([0,1,0])
               toothChain();
     }
     
-    module rim() {
-        difference() {
-            cylinder(HEIGHT, r=DIAMETER/2);
-            cylinder(HEIGHT, r=DIAMETER/ 2 - OUTTER_RIM);
+    module toothCylinder() {
+        linear_extrude(TOOTH_SIZE.y)
+            difference() {
+                circle(r=DIAMETER / 2);
+                toothRing();
+            }
+    }
+    
+    module pulleyCylinder() {
+        cylinder(TOOTH_SIZE.y, r=DIAMETER / 2 - TOOTH_SIZE.z);
+    }
+    
+    module middleSection() {
+        if (RENDER_TOOTH) {
+            toothCylinder();
+        } else {
+            pulleyCylinder();
         }
     }
     
-    if (RENDER_TOOTH) {
-        difference() {
-            rim();
-            toothRing();
+    sectionHeight = (HEIGHT - TOOTH_SIZE.y) / 2;
+    
+    module topBottom() {
+        cylinder(sectionHeight, r=DIAMETER / 2);
+    }
+    
+    difference() {
+        union() {
+            topBottom();
+            translate([0, 0, sectionHeight])
+                middleSection();
+            translate([0, 0, sectionHeight + TOOTH_SIZE.y])
+                topBottom();
         }
-    } else {
-        rim();
+        cylinder(HEIGHT, r=DIAMETER/ 2 - OUTTER_RIM);
     }
 }
 
@@ -111,31 +132,35 @@ module spokes() {
         rotate([0,0,i])
             spoke();
 }
+    
+module main() {
+    // Gear
+    mod = diametralPitchToModule(32);
 
+    gearDef = defGear(60, mod, faceWidth=6,
+            shaft=5,
+            bearings=[
+                defBearing(10, 4, 1)
+            ]);
 
-mod = diametralPitchToModule(32);
+    translate([0, 0, HEIGHT + 2]) 
+        gear(gearDef);
 
-gearDef = defGear(60, mod, faceWidth=6,
-        shaft=5,
-        bearings=[
-            defBearing(10, 4, 1)
-        ]);
+    tipDiameter = prop("tipDiameter", gearDef);
 
-translate([0, 0, HEIGHT + 2]) 
-    gear(gearDef);
-
-tipDiameter = prop("tipDiameter", gearDef);
-
-// Spacer
-translate([0, 0, HEIGHT])
-    difference() {
-        cylinder(2, r=tipDiameter/2);
-        cylinder(2, r=SHAFT_DIAMETER/2);
+    // Spacer
+    translate([0, 0, HEIGHT])
+        difference() {
+            cylinder(2, r=tipDiameter/2);
+            cylinder(2, r=SHAFT_DIAMETER/2);
+        }
+    
+    // Wheel
+    union() {
+        outterRim();
+        innerRim();
+        spokes();
     }
-
-// Wheel
-union() {
-    outterRim();
-    innerRim();
-    spokes();
 }
+
+main();

@@ -1,6 +1,8 @@
-ITERATIONS = 15;
-
 use <utils.scad>
+
+ITERATIONS = $fn;
+
+function getStepSize(tooth) = 360 / ($fn > 0 && tooth < $fn ? $fn : tooth);
 
 function circularPitchToModule(pitch) = pitch / PI;
 function diametralPitchToModule(pitch) = 25.4 / pitch;
@@ -113,7 +115,7 @@ module gear2D(gearDef) {
     tooth = prop("tooth", gearDef);
     length = pitch * tooth;
     
-    step = 360 / ITERATIONS;
+    step = getStepSize(tooth);
     
     difference() {
         circle(r);
