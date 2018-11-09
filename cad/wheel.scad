@@ -5,7 +5,7 @@ use <tooth.scad>
 DEBUG = false;
 RENDER_TOOTH = true;
 
-$fn= DEBUG ? 0 : 44;
+$fn= DEBUG ? 0 : 100;
 
 TOOTH_SIZE = [10, 5, 5];
 TOOTH_SPACING = 10;
@@ -19,12 +19,6 @@ SHAFT_DIAMETER = 5;
 BEARING_DIAMETER = 10;
 BEARING_HEIGHT = 4;
 CHAMFER_HEIGHT = 2.5;
-
-// Outter rim thickness
-OUTTER_RIM = TOOTH_SIZE.z + 5;
-
-// Inner rim diameter
-INNER_RIM = BEARING_DIAMETER + 5;
 
 SPOKE_COUNT = 8;
 SPOKE_TICKNESS = 3;
@@ -47,7 +41,7 @@ echo("Height = ", HEIGHT);
 
 
 // TODO: Add clearance for slots
-module outterRim() {
+module body() {
     module toothChain() {
         render() {
             tooths2D(TOOTH_SIZE.x, TOOTH_SIZE.z, 
@@ -93,54 +87,28 @@ module outterRim() {
         cylinder(sectionHeight, r=DIAMETER / 2);
     }
     
-    difference() {
-        union() {
+    union() {
+        topBottom();
+        translate([0, 0, sectionHeight])
+            middleSection();
+        translate([0, 0, sectionHeight + TOOTH_SIZE.y])
             topBottom();
-            translate([0, 0, sectionHeight])
-                middleSection();
-            translate([0, 0, sectionHeight + TOOTH_SIZE.y])
-                topBottom();
-        }
-        cylinder(HEIGHT, r=DIAMETER/ 2 - OUTTER_RIM);
     }
 }
 
-module innerRim() {
-    module shaft() {        
-        union() {
-            // shaft
-            cylinder(HEIGHT, r=SHAFT_DIAMETER/2);
-            // bearing
-            translate([0, 0, 0])
-                cylinder(BEARING_HEIGHT, r=BEARING_DIAMETER/2);
-            // chamfer
-            translate([0, 0, BEARING_HEIGHT]) 
-                cylinder(CHAMFER_HEIGHT, 
-                    r1=BEARING_DIAMETER/2, 
-                    r2=SHAFT_DIAMETER/2);
-        };
-    }
-    
-    difference() {
-        cylinder(HEIGHT, r=INNER_RIM / 2);
-        shaft();
-    }
-}
-
-module spokes() {
-    // TODO: This is a hack
-    mergeLength = 2;
-    
-    radius = (DIAMETER - INNER_RIM) / 2 - OUTTER_RIM + mergeLength ;
-    
-    module spoke() {
-        translate([(radius + INNER_RIM - mergeLength  / 2) / 2, 0, HEIGHT / 2])
-            cube([radius, SPOKE_TICKNESS, HEIGHT], center=true);
-    }
-    
-    for (i = [0:360/SPOKE_COUNT:360])
-        rotate([0,0,i])
-            spoke();
+module shaft() {        
+    union() {
+        // shaft
+        cylinder(HEIGHT, r=SHAFT_DIAMETER/2);
+        // bearing
+        translate([0, 0, 0])
+            cylinder(BEARING_HEIGHT, r=BEARING_DIAMETER/2);
+        // chamfer
+        translate([0, 0, BEARING_HEIGHT]) 
+            cylinder(CHAMFER_HEIGHT, 
+                r1=BEARING_DIAMETER/2, 
+                r2=SHAFT_DIAMETER/2);
+    };
 }
     
 module main() {
@@ -158,10 +126,9 @@ module main() {
         }
     
     // Wheel
-    union() {
-        outterRim();
-        innerRim();
-        spokes();
+    difference() {
+        body();
+        shaft();
     }
 }
 
