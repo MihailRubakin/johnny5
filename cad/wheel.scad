@@ -29,6 +29,16 @@ INNER_RIM = BEARING_DIAMETER + 5;
 SPOKE_COUNT = 8;
 SPOKE_TICKNESS = 3;
 
+GEAR_MOD = diametralPitchToModule(32);
+GEAR_HEIGHT = 6;
+GEAR_TOOTHS = 60;
+GEAR_DEF = defGear(GEAR_TOOTHS, GEAR_MOD, 
+            faceWidth=GEAR_HEIGHT,
+            shaft=SHAFT_DIAMETER,
+            bearings=[
+                defBearing(BEARING_DIAMETER, BEARING_HEIGHT, 1)
+            ]);
+
 ITERATIONS = $fn > 0 ? $fn : TOOTH_COUNT;
 
 echo("Tooth count = ", TOOTH_COUNT);
@@ -135,18 +145,10 @@ module spokes() {
     
 module main() {
     // Gear
-    mod = diametralPitchToModule(32);
-
-    gearDef = defGear(60, mod, faceWidth=6,
-            shaft=5,
-            bearings=[
-                defBearing(10, 4, 1)
-            ]);
-
     translate([0, 0, HEIGHT + 2]) 
-        gear(gearDef);
+        gear(GEAR_DEF);
 
-    tipDiameter = prop("tipDiameter", gearDef);
+    tipDiameter = prop("tipDiameter", GEAR_DEF);
 
     // Spacer
     translate([0, 0, HEIGHT])
