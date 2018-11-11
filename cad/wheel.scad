@@ -1,27 +1,22 @@
 use <lib/utils.scad>
 use <lib/gear.scad>
 use <tooth.scad>
+include <constant.scad>
 
 DEBUG = false;
 RENDER_TOOTH = true;
 
 $fn= DEBUG ? 0 : 100;
 
-TOOTH_SIZE = [10, 5, 5];
-TOOTH_SPACING = 10;
+TOOTH_COUNT = 14;
+DIAMETER = diameterFromToothCount(TOOTH_SIZE.y, TOOTH_SPACING, TOOTH_COUNT);
 
-TOOTH_COUNT = 9;
-DIAMETER = diameterFromToothCount(TOOTH_SIZE.x, TOOTH_SPACING, TOOTH_COUNT);
-
-HEIGHT = 45;
+HEIGHT = THREAD_SIZE.x;
 
 SHAFT_DIAMETER = 5;
 BEARING_DIAMETER = 10;
 BEARING_HEIGHT = 4;
 CHAMFER_HEIGHT = 2.5;
-
-SPOKE_COUNT = 8;
-SPOKE_TICKNESS = 3;
 
 GEAR_MOD = diametralPitchToModule(32);
 GEAR_HEIGHT = 6;
@@ -44,7 +39,7 @@ echo("Height = ", HEIGHT);
 module body() {
     module toothChain() {
         render() {
-            tooths2D(TOOTH_SIZE.x, TOOTH_SIZE.z, 
+            tooths2D(TOOTH_SIZE.y, TOOTH_SIZE.z, 
                 count=TOOTH_COUNT, 
                 spacing=TOOTH_SPACING);
         }
@@ -62,7 +57,7 @@ module body() {
     }
     
     module toothCylinder() {
-        linear_extrude(TOOTH_SIZE.y)
+        linear_extrude(TOOTH_SIZE.x)
             difference() {
                 circle(r=DIAMETER / 2);
                 toothRing();
@@ -70,7 +65,7 @@ module body() {
     }
     
     module pulleyCylinder() {
-        cylinder(TOOTH_SIZE.y, r=DIAMETER / 2 - TOOTH_SIZE.z);
+        cylinder(TOOTH_SIZE.x, r=DIAMETER / 2 - TOOTH_SIZE.z);
     }
     
     module middleSection() {
@@ -81,7 +76,7 @@ module body() {
         }
     }
     
-    sectionHeight = (HEIGHT - TOOTH_SIZE.y) / 2;
+    sectionHeight = (HEIGHT - TOOTH_SIZE.x) / 2;
     
     module topBottom() {
         cylinder(sectionHeight, r=DIAMETER / 2);
@@ -91,7 +86,7 @@ module body() {
         topBottom();
         translate([0, 0, sectionHeight])
             middleSection();
-        translate([0, 0, sectionHeight + TOOTH_SIZE.y])
+        translate([0, 0, sectionHeight + TOOTH_SIZE.x])
             topBottom();
     }
 }
@@ -104,10 +99,12 @@ module shaft() {
         translate([0, 0, 0])
             cylinder(BEARING_HEIGHT, r=BEARING_DIAMETER/2);
         // chamfer
+        /*
         translate([0, 0, BEARING_HEIGHT]) 
             cylinder(CHAMFER_HEIGHT, 
                 r1=BEARING_DIAMETER/2, 
                 r2=SHAFT_DIAMETER/2);
+        */
     };
 }
     
