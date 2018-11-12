@@ -6,6 +6,13 @@ function getStepSize(tooth) = 360 / ($fn > 0 && tooth < $fn ? $fn : tooth);
 
 function circularPitchToModule(pitch) = pitch / PI;
 function diametralPitchToModule(pitch) = 25.4 / pitch;
+function gearSpacing(toothA, toothB, mod) = 
+    let(
+        diamA = mod * toothA,
+        diamB = mod * toothB,
+        clearance = 0.25 * mod
+    ) (diamA + diamB) / 2 + clearance;
+    
 
 function defBearing(diameter, tickness=1, pos=0) = [
     [ "diameter", diameter ],

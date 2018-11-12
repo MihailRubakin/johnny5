@@ -14,18 +14,13 @@ DIAMETER = diameterFromToothCount(TOOTH_SIZE.y, TOOTH_SPACING, TOOTH_COUNT);
 HEIGHT = THREAD_SIZE.x;
 SPACER = 2;
 
-SHAFT_DIAMETER = 5;
-BEARING_DIAMETER = 10;
-BEARING_HEIGHT = 4;
 // CHAMFER_HEIGHT = 2.5;
 
 TOOTH_CLEARANCE = 1;
 
-GEAR_MOD = diametralPitchToModule(32);
-GEAR_HEIGHT = 6;
 GEAR_TOOTHS = 60;
 GEAR_DEF = defGear(GEAR_TOOTHS, GEAR_MOD, 
-            faceWidth=GEAR_HEIGHT,
+            faceWidth=FACE_WIDTH,
             shaft=SHAFT_DIAMETER,
             bearings=[
                 defBearing(BEARING_DIAMETER, BEARING_HEIGHT, 1)
@@ -37,13 +32,12 @@ echo("Tooth count = ", TOOTH_COUNT);
 echo("Diameter = ", DIAMETER);
 echo("Height = ", HEIGHT);
 
-
 // TODO: Add clearance for slots
 module body() {
     module toothChain() {
-        toothX= TOOTH_SIZE.y + TOOTH_CLEARANCE;
+        toothX= TOOTH_SIZE.y + 2 * TOOTH_CLEARANCE;
         toothY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
-        toothSpacing = TOOTH_SPACING - TOOTH_CLEARANCE;
+        toothSpacing = TOOTH_SPACING - 2 * TOOTH_CLEARANCE;
         render() {
             tooths2D(toothX, toothY, 
                 count=TOOTH_COUNT, 
@@ -116,23 +110,25 @@ module shaft() {
 }
     
 module wheelAssembly() {
-    // Gear
-    translate([0, 0, HEIGHT + SPACER]) 
-        gear(GEAR_DEF);
+    render() {
+        // Gear
+        translate([0, 0, HEIGHT + SPACER]) 
+            gear(GEAR_DEF);
 
-    tipDiameter = prop("tipDiameter", GEAR_DEF);
+        tipDiameter = prop("tipDiameter", GEAR_DEF);
 
-    // Spacer
-    translate([0, 0, HEIGHT])
+        // Spacer
+        translate([0, 0, HEIGHT])
+            difference() {
+                cylinder(SPACER, r=tipDiameter/2);
+                cylinder(SPACER, r=SHAFT_DIAMETER/2);
+            }
+        
+        // Wheel
         difference() {
-            cylinder(SPACER, r=tipDiameter/2);
-            cylinder(SPACER, r=SHAFT_DIAMETER/2);
+            body();
+            shaft();
         }
-    
-    // Wheel
-    difference() {
-        body();
-        shaft();
     }
 }
 
