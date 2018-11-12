@@ -19,6 +19,8 @@ BEARING_DIAMETER = 10;
 BEARING_HEIGHT = 4;
 // CHAMFER_HEIGHT = 2.5;
 
+TOOTH_CLEARANCE = 1;
+
 GEAR_MOD = diametralPitchToModule(32);
 GEAR_HEIGHT = 6;
 GEAR_TOOTHS = 60;
@@ -39,10 +41,13 @@ echo("Height = ", HEIGHT);
 // TODO: Add clearance for slots
 module body() {
     module toothChain() {
+        toothX= TOOTH_SIZE.y + TOOTH_CLEARANCE;
+        toothY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
+        toothSpacing = TOOTH_SPACING - TOOTH_CLEARANCE;
         render() {
-            tooths2D(TOOTH_SIZE.y, TOOTH_SIZE.z, 
+            tooths2D(toothX, toothY, 
                 count=TOOTH_COUNT, 
-                spacing=TOOTH_SPACING);
+                spacing=toothSpacing);
         }
     }
     
@@ -66,7 +71,8 @@ module body() {
     }
     
     module pulleyCylinder() {
-        cylinder(TOOTH_SIZE.x, r=DIAMETER / 2 - TOOTH_SIZE.z);
+        toothY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
+        cylinder(TOOTH_SIZE.x, r=DIAMETER / 2 - toothY);
     }
     
     module middleSection() {
