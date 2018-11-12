@@ -10,9 +10,6 @@ BOLT_RECESS = 5;
 
 CLEARANCE = 0.25;
 
-// CHAIN_GRIP.x is a border from thread side
-CHAIN_GRIP = [3, 3, 3];
-
 CENTER_HINGE = 20;
 
 module thread() {
@@ -37,7 +34,7 @@ module thread() {
   module bolt(posY) {
       rotate([0, 90, 0])
           translate([0, posY, 0])
-            cylinder(SIZE.x/2, r=bolt/2);
+            cylinder(SIZE.x/2, r=BOLT/2);
   }
   
   module hinge(front=false) {
@@ -117,17 +114,13 @@ module thread() {
   }
 }
 
-module animate() {
-    translate([0, -20 + 7 / 2, 0])
-        thread();
-
-    rotate([$t * 45, 0, 0])
-        thread();
-}
-
 module main() {
     thread();
 }
 
-// animate();
-main();
+translate([
+    0, 
+    -(THREAD_SIZE.y  - THREAD_SIZE.z / 2) / 2, 
+    THREAD_SIZE.z / 2
+])
+    main();

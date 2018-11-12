@@ -12,11 +12,12 @@ TOOTH_COUNT = 14;
 DIAMETER = diameterFromToothCount(TOOTH_SIZE.y, TOOTH_SPACING, TOOTH_COUNT);
 
 HEIGHT = THREAD_SIZE.x;
+SPACER = 2;
 
 SHAFT_DIAMETER = 5;
 BEARING_DIAMETER = 10;
 BEARING_HEIGHT = 4;
-CHAMFER_HEIGHT = 2.5;
+// CHAMFER_HEIGHT = 2.5;
 
 GEAR_MOD = diametralPitchToModule(32);
 GEAR_HEIGHT = 6;
@@ -108,9 +109,9 @@ module shaft() {
     };
 }
     
-module main() {
+module wheelAssembly() {
     // Gear
-    translate([0, 0, HEIGHT + 2]) 
+    translate([0, 0, HEIGHT + SPACER]) 
         gear(GEAR_DEF);
 
     tipDiameter = prop("tipDiameter", GEAR_DEF);
@@ -118,8 +119,8 @@ module main() {
     // Spacer
     translate([0, 0, HEIGHT])
         difference() {
-            cylinder(2, r=tipDiameter/2);
-            cylinder(2, r=SHAFT_DIAMETER/2);
+            cylinder(SPACER, r=tipDiameter/2);
+            cylinder(SPACER, r=SHAFT_DIAMETER/2);
         }
     
     // Wheel
@@ -129,4 +130,4 @@ module main() {
     }
 }
 
-main();
+wheelAssembly();
