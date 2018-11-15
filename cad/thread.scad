@@ -5,10 +5,10 @@ DEBUG = false;
 $fn = DEBUG ? 0 : 100;
 
 SIZE = THREAD_SIZE;
-BOLT = 3.1;
+BOLT = 3.25;
 BOLT_RECESS = 5;
 
-CLEARANCE = 0.25;
+CLEARANCE = 0.5;
 
 CENTER_HINGE = 20;
 
