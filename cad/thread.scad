@@ -38,11 +38,13 @@ module thread() {
             cylinder(SIZE.x/2, r=BOLT/2);
   }
   
-  module hinge(front=false) {      
+  module hinge(front=false) {
+      clearanceX = front ? 0 : CLEARANCE_X;
+      
       module frontHinge() {
-          translate([CENTER_HINGE / 4 - CLEARANCE_X, 0, 0])
+          translate([CENTER_HINGE / 4 - clearanceX, 0, 0])
             cube([
-                CENTER_HINGE / 2 - 2 * CLEARANCE_X,
+                CENTER_HINGE / 2 - 2 * clearanceX,
                 SIZE.z + 2 *  + CLEARANCE_Y,
                 SIZE.z
             ], center=true);
