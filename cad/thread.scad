@@ -8,7 +8,8 @@ SIZE = THREAD_SIZE;
 BOLT = 3.3;
 BOLT_RECESS = 5;
 
-CLEARANCE = 0.3;
+CLEARANCE_X = 0.3;
+CLEARANCE_Y = 0.3;
 
 CENTER_HINGE = 20;
 
@@ -37,14 +38,12 @@ module thread() {
             cylinder(SIZE.x/2, r=BOLT/2);
   }
   
-  module hinge(front=false) {
-      clearance = front ? 0 : CLEARANCE;
-      
+  module hinge(front=false) {      
       module frontHinge() {
-          translate([CENTER_HINGE / 4 - clearance, 0, 0])
+          translate([CENTER_HINGE / 4 - CLEARANCE_X, 0, 0])
             cube([
-                CENTER_HINGE / 2 - 2 * clearance,
-                SIZE.z + 2 * clearance,
+                CENTER_HINGE / 2 - 2 * CLEARANCE_X,
+                SIZE.z + 2 *  + CLEARANCE_Y,
                 SIZE.z
             ], center=true);
       }
@@ -54,7 +53,7 @@ module thread() {
       } else {
           difference() {
               translate([SIZE.x / 4, 0, 0])
-                cube([SIZE.x / 2, SIZE.z, SIZE.z], center=true);
+                cube([SIZE.x / 2, SIZE.z + 2 * CLEARANCE_Y, SIZE.z], center=true);
               frontHinge();
           }
       }
@@ -75,7 +74,7 @@ module thread() {
         ], center=true);
   }
   
-  module assembly() {      
+  module assembly() {
       union() {
         difference() {
             frame();

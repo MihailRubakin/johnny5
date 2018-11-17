@@ -6,7 +6,7 @@ TOOTH_SIZE = [15, 5, 5];
 TOOTH_SPACING = (THREAD_SIZE.y - THREAD_SIZE.z) - TOOTH_SIZE.y;
 
 // CHAIN_GRIP.x is a border from thread side
-CHAIN_GRIP = [3, 3, 3];
+CHAIN_GRIP = [3, 2, 2];
 
 GEAR_MOD = diametralPitchToModule(32);
 

@@ -43,5 +43,5 @@ module gears() {
         transmission();
 }
 
-// threadAnimation();
-gears();
+threadAnimation();
+//gears();
