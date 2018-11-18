@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Transmission ratio</title>
+	<script type="text/javascript" src="ratio.js"></script>
+	<script type="text/javascript">
+		window.onload = function() {
+			main();
+		};
+	</script>
+	<style>
+		table, tr, th, td {
+			border: 1px solid black;
+		}
+
+		table {
+			margin-top: 1em;
+		}
+	</style>
+</head>
+<body>
+	<form>
+		<div>
+			<label>Ratio</label>
+			<input id="ratio1" type="number" value="10" />
+			<span>:</span>
+			<input id="ratio2" type="number" value="1" />
+		</div>
+		<div>
+			<label>Drive gear tooth count</label>
+			<input id="drive" type="number" value="10" />
+		</div>
+		<div>
+			<label>Min tooth</label>
+			<input id="min" type="number" value="15" />
+		</div>
+		<div>
+			<label>Max tooth</label>
+			<input id="max" type="number" value="100" />
+		</div>
+		<a id="calculateBtn" href="javascript:void(0);">Calculate</a>
+	</form>
+	<table>
+		<thead>
+			<tr>
+				<th>Gear 1</th>
+				<th>Gear 2</th>
+				<th>Gear 3</th>
+			</tr>
+		</thead>
+		<tbody id="results"></tbody>
+</body>
+</html>
