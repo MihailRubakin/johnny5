@@ -32,16 +32,22 @@ module threadAnimation() {
 module gears() {
     SPACING = 2;
     
-    dist = gearSpacing(60, 18, GEAR_MOD);
+    dist = gearSpacing(60, 24, GEAR_MOD);
     
-    translate([0, dist / 2, 0])
+    translate([0, 0, 0])
     rotate([0, 90, 0])
         wheelAssembly();
     
-    translate([THREAD_SIZE.x + 2 * FACE_WIDTH + SPACING, -dist / 2, 0])
+    angle = 45;
+    
+    translate([
+        THREAD_SIZE.x + 2 * FACE_WIDTH + SPACING, 
+        cos(angle) * dist, 
+        sin(angle) * dist
+    ])
     rotate([0, -90, 0])
         transmission();
 }
 
-threadAnimation();
-//gears();
+// threadAnimation();
+gears();

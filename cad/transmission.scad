@@ -4,14 +4,14 @@ include <constant.scad>;
 DEBUG = false;
 $fn= DEBUG ? 0 : 100;
 
-SMALL= defGear(18, GEAR_MOD, 
+SMALL= defGear(24, GEAR_MOD, 
             faceWidth=FACE_WIDTH,
             shaft=SHAFT_DIAMETER,
             bearings=[
                 defBearing(BEARING_DIAMETER, BEARING_HEIGHT, 1)
             ]);
 
-LARGE= defGear(30, GEAR_MOD, 
+LARGE= defGear(56, GEAR_MOD, 
             faceWidth=FACE_WIDTH,
             shaft=SHAFT_DIAMETER,
             bearings=[

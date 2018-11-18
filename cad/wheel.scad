@@ -4,7 +4,7 @@ use <tooth.scad>
 include <constant.scad>
 
 DEBUG = false;
-RENDER_TOOTH = true;
+GEARED = true;
 
 $fn= DEBUG ? 0 : 100;
 
@@ -16,7 +16,7 @@ SPACER = 2;
 
 // CHAMFER_HEIGHT = 2.5;
 
-TOOTH_CLEARANCE = 1;
+TOOTH_CLEARANCE = 0.3;
 
 GEAR_TOOTHS = 60;
 GEAR_DEF = defGear(GEAR_TOOTHS, GEAR_MOD, 
@@ -32,8 +32,9 @@ echo("Tooth count = ", TOOTH_COUNT);
 echo("Diameter = ", DIAMETER);
 echo("Height = ", HEIGHT);
 
-// TODO: Add clearance for slots
 module body() {
+    toothHeight = TOOTH_SIZE.x + 2 * TOOTH_CLEARANCE;
+    
     module toothChain() {
         toothX= TOOTH_SIZE.y + 2 * TOOTH_CLEARANCE;
         toothY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
@@ -57,7 +58,7 @@ module body() {
     }
     
     module toothCylinder() {
-        linear_extrude(TOOTH_SIZE.x)
+        linear_extrude(toothHeight)
             difference() {
                 circle(r=DIAMETER / 2);
                 toothRing();
@@ -66,18 +67,18 @@ module body() {
     
     module pulleyCylinder() {
         toothY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
-        cylinder(TOOTH_SIZE.x, r=DIAMETER / 2 - toothY);
+        cylinder(toothHeight, r=DIAMETER / 2 - toothY);
     }
     
     module middleSection() {
-        if (RENDER_TOOTH) {
+        if (GEARED) {
             toothCylinder();
         } else {
             pulleyCylinder();
         }
     }
     
-    sectionHeight = (HEIGHT - TOOTH_SIZE.x) / 2;
+    sectionHeight = (HEIGHT - toothHeight) / 2;
     
     module topBottom() {
         cylinder(sectionHeight, r=DIAMETER / 2);
@@ -87,7 +88,7 @@ module body() {
         topBottom();
         translate([0, 0, sectionHeight])
             middleSection();
-        translate([0, 0, sectionHeight + TOOTH_SIZE.x])
+        translate([0, 0, sectionHeight + toothHeight])
             topBottom();
     }
 }
@@ -110,25 +111,49 @@ module shaft() {
 }
     
 module wheelAssembly() {
-    render() {
-        // Gear
-        translate([0, 0, HEIGHT + SPACER]) 
-            gear(GEAR_DEF);
-
+    module wheel() {
+        difference() {
+            body();
+            shaft();
+        }
+    }
+    
+    module spacer() {
         tipDiameter = prop("tipDiameter", GEAR_DEF);
 
-        // Spacer
         translate([0, 0, HEIGHT])
             difference() {
                 cylinder(SPACER, r=tipDiameter/2);
                 cylinder(SPACER, r=SHAFT_DIAMETER/2);
             }
-        
-        // Wheel
-        difference() {
-            body();
-            shaft();
+    }
+    
+    if (GEARED) {
+        render() {
+            // Gear
+            translate([0, 0, HEIGHT + SPACER]) 
+                gear(GEAR_DEF);
+            
+            spacer();
+            
+            wheel();
         }
+    } else {
+        render() {
+            wheel();
+        }
+    }
+}
+
+module test() {
+    height = 1;
+    toothHeight = TOOTH_SIZE.x + 2 * TOOTH_CLEARANCE;
+    sectionHeight = (HEIGHT - toothHeight) / 2 + TOOTH_CLEARANCE;
+    intersection() {
+        translate([0, 0, -sectionHeight])
+            body();
+        translate([0, 0, height/2])
+            cube([DIAMETER, DIAMETER, height], center=true);
     }
 }
 
