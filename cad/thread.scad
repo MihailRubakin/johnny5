@@ -13,9 +13,20 @@ CLEARANCE_Y = 0.3;
 
 CENTER_HINGE = 20;
 
+function getBackY() = SIZE.y - SIZE.z / 2;
+function getHingeSizeY() = SIZE.z + 2 * CLEARANCE_Y;
+
+function getCenterSizeY() = 
+    let(
+        front = 0,
+        back = getBackY(),
+        hinge= getHingeSizeY(),
+        sizeY = (back - front) - hinge
+    ) sizeY;
+
 module thread() {
   front = 0;
-  back = SIZE.y - SIZE.z / 2;
+  back = getBackY();
   center = (back - front) / 2;
   
   module frame() {
@@ -45,7 +56,7 @@ module thread() {
           translate([CENTER_HINGE / 4 - clearanceX, 0, 0])
             cube([
                 CENTER_HINGE / 2 - 2 * clearanceX,
-                SIZE.z + 2 *  + CLEARANCE_Y,
+                getHingeSizeY(),
                 SIZE.z
             ], center=true);
       }
@@ -76,6 +87,34 @@ module thread() {
         ], center=true);
   }
   
+  module toothWithChamfer() {
+    CHAMFER_SIZE = sqrt(pow(TOOTH_SIZE.z, 2) + pow(TOOTH_SIZE.z, 2));
+
+    module chamfer() {    
+        translate([
+            TOOTH_SIZE.y / 2, 
+            TOOTH_SIZE.x / 4 + TOOTH_SIZE.z, 
+            TOOTH_SIZE.z
+        ])
+        rotate([45, 0, 0])
+        cube([
+            TOOTH_SIZE.y, 
+            CHAMFER_SIZE, 
+            CHAMFER_SIZE
+        ], center=true);
+    }
+    
+    difference() {
+        tooth(
+            TOOTH_SIZE.y, 
+            TOOTH_SIZE.x / 2 + 2 * TOOTH_SIZE.z, 
+            TOOTH_SIZE.z);
+        chamfer();
+        mirror([0, 1, 0])
+            chamfer();
+    }
+}
+  
   module assembly() {
       union() {
         difference() {
@@ -101,7 +140,7 @@ module thread() {
             SIZE.z / 2
         ])
         rotate([0, 0, 90])
-            tooth(TOOTH_SIZE.y, TOOTH_SIZE.x / 2, TOOTH_SIZE.z);
+            toothWithChamfer();
       }
   }
   
