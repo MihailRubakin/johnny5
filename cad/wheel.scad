@@ -14,8 +14,6 @@ DIAMETER = diameterFromToothCount(TOOTH_SIZE.y, TOOTH_SPACING, TOOTH_COUNT);
 HEIGHT = THREAD_SIZE.x;
 SPACER = 2;
 
-// CHAMFER_HEIGHT = 2.5;
-
 TOOTH_CLEARANCE = 0.3;
 
 GEAR_TOOTHS = 60;
@@ -33,36 +31,27 @@ echo("Diameter = ", DIAMETER);
 echo("Height = ", HEIGHT);
 
 module body() {
+    step = DEBUG ? (360 / TOOTH_COUNT / 2) : 1;
+    
     toothHeight = TOOTH_SIZE.x + 2 * TOOTH_CLEARANCE;
     
-    module toothChain() {
+    module toothRing() {
         toothX= TOOTH_SIZE.y + 2 * TOOTH_CLEARANCE;
         toothY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
         toothSpacing = TOOTH_SPACING - 2 * TOOTH_CLEARANCE;
-        render() {
-            tooths2D(toothX, toothY, 
-                count=TOOTH_COUNT, 
-                spacing=toothSpacing);
-        }
-    }
-    
-    module toothRing() {
-        step = 360 / ITERATIONS;
-        circ = PI * DIAMETER;
         
-        for(i=[0:step:360])
-            rotate([0, 0, -i])
-            translate([-circ * i / 360, DIAMETER / 2, 0])
-            mirror([0,1,0])
-              toothChain();
+        intersection() {
+            circle(r=DIAMETER/2);
+            toothRing2D(toothX, toothY,
+                count=TOOTH_COUNT,
+                spacing=toothSpacing,
+                step=step);
+        }
     }
     
     module toothCylinder() {
         linear_extrude(toothHeight)
-            difference() {
-                circle(r=DIAMETER / 2);
-                toothRing();
-            }
+            toothRing();
     }
     
     module pulleyCylinder() {
@@ -70,15 +59,38 @@ module body() {
         cylinder(toothHeight, r=DIAMETER / 2 - toothY);
     }
     
-    module middleSection() {
-        if (GEARED) {
-            toothCylinder();
-        } else {
-            pulleyCylinder();
-        }
+    module trigCylinder(height, radius) {
+        coords = [
+            for(i = [0:step:360]) [
+                cos(i) * radius,
+                sin(i) * radius
+            ]
+        ];
+            
+        linear_extrude(height)
+            polygon(coords);
     }
     
     sectionHeight = (HEIGHT - toothHeight) / 2;
+    
+    module middleSection() {
+        chamferSize = TOOTH_SIZE.z + TOOTH_CLEARANCE;
+        smallRadius = DIAMETER / 2 - chamferSize;
+        largeRadius = DIAMETER / 2;
+        
+        union() {
+            cylinder(chamferSize, r1=largeRadius, r2=smallRadius);
+            
+            if (GEARED) {
+                toothCylinder();
+            } else {
+                pulleyCylinder();
+            }
+            
+            translate([0, 0, TOOTH_SIZE.x + 2 * TOOTH_CLEARANCE - chamferSize])
+                cylinder(chamferSize, r1=smallRadius, r2=largeRadius);
+        }
+    }
     
     module topBottom() {
         cylinder(sectionHeight, r=DIAMETER / 2);
@@ -100,13 +112,6 @@ module shaft() {
         // bearing
         translate([0, 0, 0])
             cylinder(BEARING_HEIGHT, r=BEARING_DIAMETER/2);
-        // chamfer
-        /*
-        translate([0, 0, BEARING_HEIGHT]) 
-            cylinder(CHAMFER_HEIGHT, 
-                r1=BEARING_DIAMETER/2, 
-                r2=SHAFT_DIAMETER/2);
-        */
     };
 }
     

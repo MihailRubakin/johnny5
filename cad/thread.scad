@@ -8,10 +8,11 @@ SIZE = THREAD_SIZE;
 BOLT = 3.3;
 BOLT_RECESS = 5;
 
+CENTER_HINGE = 20;
+
 CLEARANCE_X = 0.15;
 CLEARANCE_Y = 0.3;
-
-CENTER_HINGE = 20;
+GRIP_CLEARANCE = 0.3;
 
 function getBackY() = SIZE.y - SIZE.z / 2;
 function getHingeSizeY() = SIZE.z + 2 * CLEARANCE_Y;
@@ -81,8 +82,8 @@ module thread() {
     sizeX = SIZE.x / 2 - CHAIN_GRIP.x;
     translate([sizeX / 2, center, -SIZE.z /2])
         cube([
-            sizeX, 
-            CHAIN_GRIP.y, 
+            sizeX + GRIP_CLEARANCE / 2, 
+            CHAIN_GRIP.y + GRIP_CLEARANCE / 2, 
             2 * CHAIN_GRIP.z
         ], center=true);
   }
@@ -93,29 +94,25 @@ module thread() {
     module chamfer() {    
         translate([
             TOOTH_SIZE.y / 2, 
-            TOOTH_SIZE.x / 4 + TOOTH_SIZE.z, 
+            TOOTH_SIZE.x / 2, 
             TOOTH_SIZE.z
         ])
         rotate([45, 0, 0])
-        cube([
-            TOOTH_SIZE.y, 
-            CHAMFER_SIZE, 
-            CHAMFER_SIZE
-        ], center=true);
+            cube([
+                TOOTH_SIZE.y, 
+                CHAMFER_SIZE, 
+                CHAMFER_SIZE
+            ], center=true);
     }
-    
-    difference() {
-        tooth(
-            TOOTH_SIZE.y, 
-            TOOTH_SIZE.x / 2 + 2 * TOOTH_SIZE.z, 
-            TOOTH_SIZE.z);
-        chamfer();
-        mirror([0, 1, 0])
+
+        difference() {
+            translate([0, TOOTH_SIZE.x / 4, 0])
+                tooth(TOOTH_SIZE.y, TOOTH_SIZE.x / 2, TOOTH_SIZE.z);
             chamfer();
+        }
     }
-}
   
-  module assembly() {
+    module assembly() {
       union() {
         difference() {
             frame();
@@ -135,11 +132,11 @@ module thread() {
         };
 
         translate([
-            TOOTH_SIZE.x / 4, 
-            center - TOOTH_SIZE.y / 2, 
+            0, 
+            center + TOOTH_SIZE.y / 2, 
             SIZE.z / 2
         ])
-        rotate([0, 0, 90])
+        rotate([0, 0, -90])
             toothWithChamfer();
       }
   }
@@ -158,9 +155,11 @@ module main() {
     thread();
 }
 
+/*
 translate([
     0, 
     -(THREAD_SIZE.y  - THREAD_SIZE.z / 2) / 2, 
     THREAD_SIZE.z / 2
 ])
+*/
     main();
