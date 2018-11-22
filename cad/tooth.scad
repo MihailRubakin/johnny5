@@ -47,30 +47,49 @@ module tooths(x, y, z, count, spacing=1, base=1) {
         tooths2D(x, z, count, spacing, base);
 }
 
-module toothsFromDiameter(x, y, z, spacing, diameter) {
-    circ = PI * diameter;
-    
-    toothSize = x + spacing;
-    
-    if (circ % toothSize != 0) {
-        current = circ / toothSize;
-        lower = floor(current) * toothSize / PI;
-        echo("ERROR: Need integral tooth count. ", 
-            "Got ", current, " tooths. ", 
-            "Lower diameter to ", lower);
-    } else {
-        count = (circ/ toothSize);
-        
-        // TODO: generate
-        echo("Got ", count, " tooths");
-    }
-}
 
 function diameterFromToothCount(x, spacing, count) =
     (x + spacing) * count / PI;
 
-// toothsFromDiameter(0.75, 0.75, 1, 1, diameterFromToothCount(0.75, 1, 10));
+module toothRing2D(x, y, spacing, count, inner=true, step=1) {
+    diameter = diameterFromToothCount(x, spacing, count);
+    circ = PI * diameter;
+    
+    toothSize = x + spacing;
+    
+    function getCircCoord(i) = [
+        cos(i) * diameter / 2,
+        sin(i) * diameter / 2,
+    ];
+        
+    function getToothCoord(i, toothPercent) = 
+        let(
+            mult= inner ? -1 : 1,
+            h= mult * sin(toothPercent * 180),
+            r= diameter / 2 + h * y
+        )
+    [
+        cos(i) * r,
+        sin(i) * r,
+    ];
+    
+    function getCoord(i, section, toothPart) = (i % section <= toothPart) 
+        ? getToothCoord(i, (i % section) / toothPart) 
+        : getCircCoord(i);
+    
+    section = 360 / count;
+    toothPart = x / (x + spacing) * section;
+    
+    coords = [
+        for( i = [0:step:360])
+            getCoord(i, section, toothPart)
+    ];
+        
+    polygon(coords);
+}
 
-//tooths2D(0.75, 1, 10);
-
-tooths(0.75, 1, 3, 10);
+diam=diameterFromToothCount(8.15, 4.35, 14);
+difference() {
+    circle(r=diam/2 + 1);
+    toothRing2D(8.15, 5, 4.35, 14);
+}
