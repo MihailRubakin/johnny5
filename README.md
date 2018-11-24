@@ -1,4 +1,4 @@
 # Arm
-![alt text][arm]
+![Arm animation][arm]
 
-[arm]: https://github.com/polopelletier/johnny5/raw/arm.gif "Arm animation"
+[arm]: https://raw.githubusercontent.com/polopelletier/johnny5/master/arm.gif "Arm animation"
