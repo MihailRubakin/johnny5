@@ -1,9 +1,10 @@
 use <arm.scad>
+use <base.scad>
 
 /*
 $vpt = [-15, 0, 10];
 $vpr = [75, 0, 320];
-$vpd = 215;
+$vpd = 2200;
 */
 
 function getAngleH(s=0, a=45) = $t < 0.25
@@ -19,5 +20,5 @@ function getAngleV(s=0, a=45) = $t < 0.25 || $t > 0.75
     : s - a * (1 - ($t - 0.5) / 0.25);
 
 armAssembly(    
-    getAngleH(30, 90), 
+    getAngleH(30, 80), 
     getAngleV(0, 60));

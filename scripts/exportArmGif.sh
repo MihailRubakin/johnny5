@@ -3,7 +3,7 @@
 mkdir -p tmp
 rm tmp/arm*.png
 
-camera="-15,0,10,75,0,320,215"
+camera="-15,0,10,75,0,320,2200"
 
 IMAGES=60
 
@@ -15,7 +15,7 @@ do
 
 	echo "Rendering frame $i/$IMAGES"
 
-	openscad --camera="$camera" -D"\$t=$t" -o "$out" cad/armAnim.scad
+	openscad --camera="$camera" -D"\$t=$t" -o "$out" cad/arm/anim.scad
 done
 
 echo "Converting to gif"
