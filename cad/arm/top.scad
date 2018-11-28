@@ -25,3 +25,9 @@ module topHinge(sizeH, angleH, sizeV, angleV, thickness=1) {
                 circle(d=BOLT_DIAMETER);
     }
 }
+
+rotate([-90, 0, 0])
+topHinge(
+    SHORT, BOTTOM_SLOPE, 
+    SHORT, TOP_SLOPE, 
+    thickness=THICKNESS);

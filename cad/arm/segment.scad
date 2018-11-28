@@ -1,4 +1,5 @@
 include <constant.scad>
+use <servo.scad>
 use <utils.scad>
 
 module segment(length, thickness=1) {
@@ -13,6 +14,16 @@ module segment(length, thickness=1) {
         circle(d=BOLT_DIAMETER);
         translate([length, 0, 0])
             circle(d=BOLT_DIAMETER);
+    }
+}
+
+module servoSegment(length, thickness=1) {
+    difference() {
+        segment(length, thickness);
+        
+        translate([0, -THICKNESS, 0])
+        rotate([180, 0, 0])
+            baseServo();
     }
 }
 
@@ -50,8 +61,21 @@ module topSegment(pos, angle) {
 }
 
 rotate([-90, 0, 0]) {
+    // Need 2
     // segment(SHORT, THICKNESS);
+    
+    // Need 4
     // segment(LONG, THICKNESS);
+    
+    // Need 1
+    // servoSegment(SHORT, THICKNESS);
+    
+    // Need 1
+    // servoSegment(LONG, THICKNESS);
+    
+    // Need 1
     // longSegment(SHORT, LONG, THICKNESS);
-    // topSegment([0, 0], 0);
+    
+    // Need 1
+    //topSegment([0, 0], 0);
 }

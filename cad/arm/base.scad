@@ -1,6 +1,8 @@
 include <constant.scad>
 use <servo.scad>
 
+SHOW_SERVO = false;
+
 module bottomHinge(size, angle, thickness=1) {
     point = getBottomCoords(size, angle);
     
@@ -109,25 +111,36 @@ module base() {
             cube([sizeX, sizeY, THICKNESS], center=true);
     }
     
-    union() {
-        leftWall();
-        translate([0, -(THICKNESS + thickness), 0])
+    rightServo = [0, -(CENTER + THICKNESS), 0];
+    
+    difference() {
+        union() {
             leftWall();
-        leftJoin();
-        
-        translate([0, -(CENTER - THICKNESS), 0])
-            rightHinge();
-        translate([0, -(CENTER + THICKNESS), 0])
-            rightWall();
-        bottom();
+            translate([0, -(THICKNESS + thickness), 0])
+                leftWall();
+            leftJoin();
+            
+            translate([0, -(CENTER - THICKNESS), 0])
+                rightHinge();
+            translate([0, -(CENTER + THICKNESS), 0])
+                rightWall();
+            bottom();
+        }
+        baseServo();
+        translate(rightServo)
+        rotate([180, 0, 0])
+            baseServo();
     }
     
-    color("red") baseServo();
-    
-    color("red") 
-    translate([0, -(CENTER + THICKNESS), 0])
-    rotate([180, 0, 0])
-        baseServo();
+    if (SHOW_SERVO) {
+        color("red") baseServo();
+        
+        color("red") 
+        translate(rightServo)
+        rotate([180, 0, 0])
+            baseServo();
+    }
 }
 
-base();
+translate([0, 0, 2 * THICKNESS])
+    base();
