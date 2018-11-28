@@ -56,7 +56,7 @@ module armAssembly(angleH=0, angleV=0) {
         THICKNESS,
     ];
     
-    // base();
+    base();
     
     hingeDuplicator(hingesYCoords) {
         translate([B.x, 0, B.y])
@@ -74,18 +74,10 @@ module armAssembly(angleH=0, angleV=0) {
             segment(SHORT, thickness=THICKNESS);
     }
     
-    hingeDuplicator(concat(hingesYCoords, [
-        hingesYCoords[0] - CENTER, 
-        hingesYCoords[1] - CENTER
-    ])) {
-        translate([C.x, 0, C.y])
-            clawHinge(SHORT, TOP_SLOPE, width=CLAW_WIDTH, thickness=THICKNESS);
-    }
-    
-    // TODO: Remove and create a claw piece
-    scaleY = 2 * THICKNESS + CENTER;
-    translate([C.x - CLAW_WIDTH - SEGMENT_WIDTH / 2, -scaleY, C.y])
-        cube([1, scaleY, cos(TOP_SLOPE) * SHORT]);
+    translate([C.x, THICKNESS, C.y])
+        clawHinge(SHORT, TOP_SLOPE, 
+            width=CLAW_WIDTH, 
+            thickness=THICKNESS);
     
     // Segments
     rotate([0, angleH - 90, 0])
@@ -117,7 +109,7 @@ module armAssembly(angleH=0, angleV=0) {
     
     translate([G.x, -CENTER, G.y])
     rotate([0, 180 - angleLong, 0])
-        longSegment(SHORT, LONG, thickness=THICKNESS);
+        doubleSegment(SHORT, LONG, thickness=THICKNESS);
     
     if (DEBUG_BOLT) {
         shortLength = 3 * THICKNESS;
@@ -133,5 +125,4 @@ module armAssembly(angleH=0, angleV=0) {
     }
 }
 
-% armAssembly();
-base();
+armAssembly();

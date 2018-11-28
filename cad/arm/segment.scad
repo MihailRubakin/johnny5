@@ -27,7 +27,7 @@ module servoSegment(length, thickness=1) {
     }
 }
 
-module longSegment(short, long, thickness=1) {
+module doubleSegment(short, long, thickness=1) {
     render()
     difference() {
         segment(short + long, thickness);
@@ -60,22 +60,26 @@ module topSegment(pos, angle) {
     }
 }
 
+// stl = "segmentServoLong";
+
 rotate([-90, 0, 0]) {
-    // Need 2
-    // segment(SHORT, THICKNESS);
-    
-    // Need 4
-    // segment(LONG, THICKNESS);
-    
-    // Need 1
-    // servoSegment(SHORT, THICKNESS);
-    
-    // Need 1
-    // servoSegment(LONG, THICKNESS);
-    
-    // Need 1
-    // longSegment(SHORT, LONG, THICKNESS);
-    
-    // Need 1
-    //topSegment([0, 0], 0);
+    if (stl == "segmentShort") {
+        // x2
+        segment(SHORT, THICKNESS);
+    } else if (stl == "segmentLong") {
+        // x4
+        segment(LONG, THICKNESS);
+    } else if (stl == "segmentServoShort") {
+        // x1
+        servoSegment(SHORT, THICKNESS);
+    } else if (stl == "segmentServoLong") {
+        // x1
+        servoSegment(LONG, THICKNESS);
+    } else if (stl == "segmentDouble") {
+        // x1
+        doubleSegment(SHORT, LONG, THICKNESS);
+    } else if (stl == "segmentTop") {
+        // x1
+        topSegment([0, 0], 0);
+    }
 }
