@@ -1,7 +1,7 @@
 include <constant.scad>
 use <lib/utils.scad>;
 
-setDebug(false);
+$fn = getFragmentCount(debug=false);
 
 WIDTH = THREAD_SIZE.x - 2 * CHAIN_GRIP.x;
 

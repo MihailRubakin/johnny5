@@ -2,7 +2,7 @@ use <tooth.scad>;
 use <lib/utils.scad>;
 include <constant.scad>
 
-setDebug(false);
+$fn = getFragmentCount(debug=false);
 
 SIZE = THREAD_SIZE;
 BOLT = 3.3;

@@ -2,7 +2,7 @@ use <lib/gear.scad>;
 use <lib/utils.scad>;
 include <constant.scad>;
 
-setDebug(false);
+$fn = getFragmentCount(debug=false);
 
 SMALL= defGear(24, GEAR_MOD, 
             faceWidth=FACE_WIDTH,

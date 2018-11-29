@@ -3,7 +3,7 @@ use <lib/utils.scad>
 use <tooth.scad>
 include <constant.scad>
 
-setDebug(false);
+$fn = getFragmentCount(debug=false);
 
 GEARED = true;
 

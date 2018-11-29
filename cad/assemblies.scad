@@ -6,7 +6,7 @@ use <lib/utils.scad>;
 use <lib/gear.scad>;
 include <constant.scad>;
 
-setDebug(false);
+$fn = getFragmentCount(debug=false);
 
 module threadWithGrip() {
     thread();

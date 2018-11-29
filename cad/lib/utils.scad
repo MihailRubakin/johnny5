@@ -3,6 +3,4 @@ function prop(key, table) =
 
 function flatten(l) = [ for (a = l) for (b = a) b ] ;
 
-module setDebug(debug) {
-	$fn = debug ? 0 : 100;
-}
+function getFragmentCount(debug=false) = debug ? 0 : 100;
