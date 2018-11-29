@@ -1,7 +1,34 @@
 include <constant.scad>
 use <utils.scad>
 
-// TODO: Bolt for base
+module clawBase() {
+    sizeY = 3 * THICKNESS + CENTER;
+    sizeZ = cos(TOP_SLOPE) * SHORT;
+    
+    difference() {
+        translate([
+            0, 
+            -sizeY, 
+            0
+        ]) cube([
+                CLAW_WIDTH - SEGMENT_WIDTH / 2, 
+                sizeY, 
+                sizeZ
+            ]);
+    
+        hingeDuplicator([
+            - 3/2 * THICKNESS,
+            -(CENTER + 3/2 * THICKNESS)
+        ]) {
+            translate([0, 0, 1/4 * sizeZ])
+            rotate([0, 90, 0])
+                cylinder(sizeZ, d=BOLT_DIAMETER);
+            translate([0, 0, 3/4 * sizeZ])
+            rotate([0, 90, 0])
+                cylinder(sizeZ, d=BOLT_DIAMETER);
+        }
+    }
+}
 
 module clawSingleSection(size, angle, width=1, thickness=1) {
     top = getTopCoords(size, angle);
@@ -60,13 +87,11 @@ module clawHinge(size, angle, width=1, thickness=1) {
     ]) {
         clawDoubleSection(size, angle, width, thickness);
     }
-
-    scaleY = 3 * THICKNESS + CENTER;
     
-    translate([-(CLAW_WIDTH + SEGMENT_WIDTH / 2), -scaleY, 0])
-    cube([CLAW_WIDTH - SEGMENT_WIDTH / 2, scaleY, cos(TOP_SLOPE) * SHORT]);
+    translate([-(CLAW_WIDTH + SEGMENT_WIDTH / 2), 0, 0])
+        clawBase();
 }
 
 translate([0, 0, CLAW_WIDTH + THICKNESS])
 rotate([0, -90, 0])
-    clawHinge(SHORT, TOP_SLOPE, width=CLAW_WIDTH, thickness=THICKNESS);
+  clawHinge(SHORT, TOP_SLOPE, width=CLAW_WIDTH, thickness=THICKNESS);
