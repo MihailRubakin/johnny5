@@ -8,7 +8,6 @@ stlList=(
 	"segmentServoShort"
 	"segmentServoLong"
 	"segmentDouble"
-	"segmentTop"
 )
 
 for stl in "${stlList[@]}"

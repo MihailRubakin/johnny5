@@ -38,28 +38,6 @@ module doubleSegment(short, long, thickness=1) {
     }
 }
 
-module topSegment(pos, angle) {
-    clearanceX = (BOLT_DIAMETER + SEGMENT_WIDTH) / 2;
-    sizeX = LONG - 2 * clearanceX;
-    sizeY = CENTER;
-    
-    translate([pos.x, 0, pos.y])
-    rotate([0, angle, 0])
-    union() {
-        translate([sizeX / 2 + clearanceX, -sizeY/2, 0])
-            cube([sizeX, sizeY, SEGMENT_WIDTH], center=true);
-
-        hingeDuplicator([
-            0, 
-            -2 * THICKNESS, 
-            -CENTER + 2 * THICKNESS, 
-            -CENTER
-        ]) {
-                segment(LONG, thickness=THICKNESS);
-        }
-    }
-}
-
 // stl = "segmentServoLong";
 
 rotate([-90, 0, 0]) {
@@ -67,7 +45,7 @@ rotate([-90, 0, 0]) {
         // x2
         segment(SHORT, THICKNESS);
     } else if (stl == "segmentLong") {
-        // x4
+        // x5
         segment(LONG, THICKNESS);
     } else if (stl == "segmentServoShort") {
         // x1
@@ -78,8 +56,5 @@ rotate([-90, 0, 0]) {
     } else if (stl == "segmentDouble") {
         // x1
         doubleSegment(SHORT, LONG, THICKNESS);
-    } else if (stl == "segmentTop") {
-        // x1
-        topSegment([0, 0], 0);
     }
 }

@@ -87,7 +87,6 @@ module armAssembly(angleH=0, angleV=0) {
     rotate([0, angleH - 90, 0])
         segment(LONG, thickness=THICKNESS);
     
-    topSegment(E, angleV + 180);
     hingeDuplicator([0, -CENTER]) {
         translate([E.x, 0, E.y])
         rotate([0, angleV + 180, 0])
