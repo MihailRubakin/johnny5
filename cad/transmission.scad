@@ -1,8 +1,8 @@
 use <lib/gear.scad>;
+use <lib/utils.scad>;
 include <constant.scad>;
 
-DEBUG = false;
-$fn= DEBUG ? 0 : 100;
+setDebug(false);
 
 SMALL= defGear(24, GEAR_MOD, 
             faceWidth=FACE_WIDTH,

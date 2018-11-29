@@ -1,7 +1,7 @@
 include <constant.scad>
+use <lib/utils.scad>;
 
-DEBUG = false;
-$fn = DEBUG ? 0 : 100;
+setDebug(false);
 
 WIDTH = THREAD_SIZE.x - 2 * CHAIN_GRIP.x;
 

@@ -1,9 +1,10 @@
-use <lib/utils.scad>
 use <lib/gear.scad>
+use <lib/utils.scad>
 use <tooth.scad>
 include <constant.scad>
 
-DEBUG = false;
+setDebug(false);
+
 GEARED = true;
 
 $fn= DEBUG ? 0 : 100;

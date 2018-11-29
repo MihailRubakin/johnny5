@@ -1,8 +1,8 @@
 use <tooth.scad>;
+use <lib/utils.scad>;
 include <constant.scad>
 
-DEBUG = false;
-$fn = DEBUG ? 0 : 100;
+setDebug(false);
 
 SIZE = THREAD_SIZE;
 BOLT = 3.3;

@@ -2,11 +2,11 @@ use <thread.scad>;
 use <grip.scad>;
 use <wheel.scad>;
 use <transmission.scad>;
+use <lib/utils.scad>;
 use <lib/gear.scad>;
 include <constant.scad>;
 
-DEBUG = true;
-$fn = DEBUG ? 0 : 100;
+setDebug(false);
 
 module threadWithGrip() {
     thread();
