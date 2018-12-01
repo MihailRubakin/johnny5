@@ -2,6 +2,7 @@ include <constant.scad>
 use <base.scad>
 use <claw.scad>
 use <segment.scad>
+use <spacer.scad>
 use <top.scad>
 use <utils.scad>
 
@@ -48,12 +49,16 @@ module armAssembly(angleH=0, angleV=0) {
         F.y + sin(90 - angleH) * LONG
     ];
     
-    // debugSphere(F);
+    yPos = getYPositions(thickness=THICKNESS, center=CENTER);
+    
+    segmentThickness = THICKNESS - 2 * CLEARANCE;
+    
+    // debugSphere(B);
     
     // Hinges
     hingesYCoords = [
-        -THICKNESS,
-        THICKNESS,
+        yPos[0],
+        yPos[2],
     ];
     
     base();
@@ -66,47 +71,59 @@ module armAssembly(angleH=0, angleV=0) {
                 thickness=THICKNESS);
     }
     
-    // TODO: Remove and add to top hinge
-    translate([0, -CENTER, 0])
+    translate([0, yPos[4], 0])
     hingeDuplicator(hingesYCoords) {
         translate([B.x, 0, B.y])
         rotate([0, -(90 + TOP_SLOPE), 0])
             segment(SHORT, thickness=THICKNESS);
     }
     
-    translate([C.x, THICKNESS, C.y])
+    translate([C.x, 0, C.y])
         clawHinge(SHORT, TOP_SLOPE, 
             width=CLAW_WIDTH, 
             thickness=THICKNESS);
     
     // Segments
+    translate([A.x, yPos[1] - CLEARANCE, A.y])
     rotate([0, angleH - 90, 0])
-        segment(LONG, thickness=THICKNESS);
+        segment(LONG, thickness=segmentThickness);
         
-    translate([D.x, 0, D.y])
+    translate([D.x, yPos[1] - CLEARANCE, D.y])
     rotate([0, angleH - 90, 0])
-        segment(LONG, thickness=THICKNESS);
+        segment(LONG, thickness=segmentThickness);
     
-    hingeDuplicator([0, -CENTER]) {
+    hingeDuplicator([
+        yPos[1] - CLEARANCE, 
+        yPos[5] - CLEARANCE
+    ]) {
         translate([E.x, 0, E.y])
         rotate([0, angleV + 180, 0])
-            segment(LONG, thickness=THICKNESS);
+            segment(LONG, thickness=segmentThickness);
     }
     
-    translate([0, -CENTER, 0])
+    translate([0, yPos[5] - CLEARANCE, 0])
     rotate([0, angleV, 0])
-        segment(SHORT, thickness=THICKNESS);
+        segment(SHORT, thickness=segmentThickness);
     
-    translate([0, -CENTER, 0])
+    translate([0, yPos[4] - CLEARANCE, 0])
     hingeDuplicator(hingesYCoords) {
         translate([F.x, 0, F.y])
         rotate([0, angleH - 90, 0])
-            segment(LONG, thickness=THICKNESS);
+            segment(LONG, thickness=segmentThickness);
     }
+    
+    // Spacers
+    translate([B.x, yPos[3] - CLEARANCE, B.y])
+    rotate([90, 0, 0])
+        spacer(CENTER - 2 * CLEARANCE);
+    
+    translate([E.x, yPos[3] - CLEARANCE, E.y])
+    rotate([90, 0, 0])
+        spacer(CENTER - 2 * CLEARANCE);
     
     angleLong = atan2(B.y - C.y, B.x - C.x);
     
-    translate([G.x, -CENTER, G.y])
+    translate([G.x, yPos[5], G.y])
     rotate([0, 180 - angleLong, 0])
         doubleSegment(SHORT, LONG, thickness=THICKNESS);
     
@@ -124,4 +141,11 @@ module armAssembly(angleH=0, angleV=0) {
     }
 }
 
-armAssembly();
+function getArmOffset() = [
+    0,
+    getSizeY(thickness=THICKNESS, center=CENTER) / 2,
+    SEGMENT_WIDTH / 2 + CLEARANCE + THICKNESS
+];
+
+translate(getArmOffset())
+    armAssembly();

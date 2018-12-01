@@ -1,5 +1,6 @@
 include <constant.scad>
 use <servo.scad>
+use <utils.scad>
 
 SHOW_SERVO = false;
 
@@ -27,33 +28,32 @@ module bottomHinge(size, angle, thickness=1) {
 
 module base() {
     point = getBottomCoords(SHORT, BOTTOM_SLOPE);
-
-    // TODO: Use servo constants
-    thickness = 31 - 19;
     
-    front = -41 * 1/3;
+    // TODO: Use servo constants
+    front = -max(41 * 1/3, SEGMENT_WIDTH / 2);
     back = point.x + SEGMENT_WIDTH;
+    
+    yPos = getYPositions(thickness=THICKNESS, center=CENTER);
 
     sizeX = back - front;
-    sizeY = CENTER + 2 * THICKNESS + thickness;
-    sizeZ = point.y + SEGMENT_WIDTH;
+    sizeY = getSizeY(thickness=THICKNESS, center=CENTER);
+    sizeZ = point.y + SEGMENT_WIDTH + CLEARANCE;
     
     module leftWall() {
         difference() {
             translate([
                 (back + front) / 2, 
-                thickness / 2, 
-                point.y / 2
+                -THICKNESS / 2, 
+                (point.y - CLEARANCE) / 2
             ]) 
-                cube([sizeX, thickness, sizeZ], center=true);
+                cube([sizeX, THICKNESS, sizeZ], center=true);
             
-            translate([0, thickness, 0])
-                rotate([90, 0, 0])
-                    cylinder(thickness, d=BOLT_DIAMETER);
-            
-            translate([point.x, thickness, point.y])
             rotate([90, 0, 0])
-                cylinder(thickness, d=BOLT_DIAMETER);
+                cylinder(THICKNESS, d=BOLT_DIAMETER);
+            
+            translate([point.x, 0, point.y])
+            rotate([90, 0, 0])
+                cylinder(THICKNESS, d=BOLT_DIAMETER);
         }
     }
     
@@ -61,27 +61,28 @@ module base() {
         translate([
             back - SEGMENT_WIDTH / 2, 
             -THICKNESS / 2, 
-            point.y / 2 - THICKNESS
+            (point.y - (CLEARANCE + SEGMENT_WIDTH)) / 2
         ])
             cube([
                 SEGMENT_WIDTH, 
-                THICKNESS, 
+                THICKNESS + CLEARANCE, 
                 sizeZ - SEGMENT_WIDTH
             ], center=true);
     }
 
     module rightWall() {
-    	// TODO: Use servo constants
+        sizeX = -(2 * front);
+        
     	translate([
-    		41 / 2 + front,
-    		-THICKNESS / 2,
-    		0
-    	])
-    	cube([
-    		41,
-    		THICKNESS, 
-    		SEGMENT_WIDTH
-    	], center=true);
+            sizeX / 2 + front, 
+            -THICKNESS / 2, 
+            -CLEARANCE / 2
+        ])
+            cube([
+                sizeX,
+                THICKNESS, 
+                SEGMENT_WIDTH + CLEARANCE
+            ], center=true);
     }
     
     module rightHinge() {
@@ -89,11 +90,15 @@ module base() {
             union() {
                 rotate([90, 0, 0])
                     cylinder(THICKNESS, d=SEGMENT_WIDTH);
-                translate([0, -THICKNESS / 2, -SEGMENT_WIDTH / 4])
+                translate([
+                    0, 
+                    -THICKNESS / 2, 
+                    -(SEGMENT_WIDTH / 2 + CLEARANCE) / 2
+                ])
                     cube([
                         SEGMENT_WIDTH, 
                         THICKNESS, 
-                        SEGMENT_WIDTH / 2
+                        SEGMENT_WIDTH / 2 + CLEARANCE
                     ], center=true);
             }
             
@@ -105,42 +110,42 @@ module base() {
     module bottom() {
         translate([
             (back + front) / 2, 
-            thickness - sizeY / 2, 
-            -3/2 * THICKNESS
+            -sizeY / 2, 
+            -THICKNESS / 2
         ])
             cube([sizeX, sizeY, THICKNESS], center=true);
     }
     
-    rightServo = [0, -(CENTER + THICKNESS), 0];
+    module servos() {
+        translate([0, yPos[1], 0])
+            baseServo();
+        translate([0, yPos[6], 0])
+        rotate([180, 0, 0])
+            baseServo();
+    }
     
     difference() {
         union() {
             leftWall();
-            translate([0, -(THICKNESS + thickness), 0])
+            translate([0, yPos[1], 0])
+                leftJoin();
+            translate([0, yPos[2], 0])
                 leftWall();
-            leftJoin();
             
-            translate([0, -(CENTER - THICKNESS), 0])
+            translate([0, yPos[4], 0])
                 rightHinge();
-            translate([0, -(CENTER + THICKNESS), 0])
+            translate([0, yPos[6], 0])
                 rightWall();
-            bottom();
+            translate([0, 0, -(SEGMENT_WIDTH / 2 + CLEARANCE)])
+                bottom();
         }
-        baseServo();
-        translate(rightServo)
-        rotate([180, 0, 0])
-            baseServo();
+        servos();
     }
     
     if (SHOW_SERVO) {
-        color("red") baseServo();
-        
-        color("red") 
-        translate(rightServo)
-        rotate([180, 0, 0])
-            baseServo();
+        color("red") servos();
     }
 }
 
-translate([0, 0, 2 * THICKNESS])
+translate([0, 0, SEGMENT_WIDTH / 2 + THICKNESS + CLEARANCE])
     base();

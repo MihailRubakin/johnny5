@@ -2,6 +2,8 @@ include <constant.scad>
 use <servo.scad>
 use <utils.scad>
 
+CLEARED_THICKNESS = THICKNESS - 2 * CLEARANCE;
+
 module segment(length, thickness=1) {
     rotate([90, 0, 0])
     linear_extrude(thickness)
@@ -21,7 +23,7 @@ module servoSegment(length, thickness=1) {
     difference() {
         segment(length, thickness);
         
-        translate([0, -THICKNESS, 0])
+        translate([0, -thickness, 0])
         rotate([180, 0, 0])
             baseServo();
     }
@@ -38,23 +40,34 @@ module doubleSegment(short, long, thickness=1) {
     }
 }
 
-// stl = "segmentServoLong";
+DEBUG_STL = "segmentLong";
+function isDebug() = $stl == undef;
 
-rotate([-90, 0, 0]) {
+stl = isDebug() ? DEBUG_STL : $stl;
+
+if (isDebug()) {
+    % square(BED_DIMENSION, center=true);
+}
+
+pos = isDebug() ? -(BED_DIMENSION - SEGMENT_WIDTH) / 2 : 0;
+rotationZ = isDebug() ? 45 : 0;
+
+translate([pos, pos, 0])
+rotate([-90, 0, rotationZ]) {
     if (stl == "segmentShort") {
         // x2
-        segment(SHORT, THICKNESS);
+        segment(SHORT, CLEARED_THICKNESS);
     } else if (stl == "segmentLong") {
         // x5
-        segment(LONG, THICKNESS);
+        segment(LONG, CLEARED_THICKNESS);
     } else if (stl == "segmentServoShort") {
         // x1
-        servoSegment(SHORT, THICKNESS);
+        servoSegment(SHORT, CLEARED_THICKNESS);
     } else if (stl == "segmentServoLong") {
         // x1
-        servoSegment(LONG, THICKNESS);
+        servoSegment(LONG, CLEARED_THICKNESS);
     } else if (stl == "segmentDouble") {
         // x1
-        doubleSegment(SHORT, LONG, THICKNESS);
+        doubleSegment(SHORT, LONG, CLEARED_THICKNESS);
     }
 }
