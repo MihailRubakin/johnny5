@@ -25,7 +25,7 @@ module bearing(bearingDef, faceWidth) {
     tickness = prop("tickness", bearingDef);
     
     module _bearing() {
-        cylinder(tickness, r=diameter/2);
+        cylinder(tickness, d=diameter);
     }
     
     posFlag = prop("pos", bearingDef);
@@ -43,7 +43,7 @@ module shaft(gearDef) {
     shaft = prop("shaft", gearDef);
     
     if(shaft > 0)
-        cylinder(faceWidth, r=shaft/2);
+        cylinder(faceWidth, d=shaft);
     
     bearings = prop("bearings", gearDef);
     

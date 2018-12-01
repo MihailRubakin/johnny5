@@ -1,16 +1,18 @@
 use <lib/gear.scad>
 use <lib/utils.scad>
 use <tooth.scad>
+use <thread.scad>
 include <constant.scad>
 
-$fn = getFragmentCount(debug=false);
-
+DEBUG = false;
 GEARED = true;
+SHOW_RING = false;
+SHOW_TOOTH = false;
 
-$fn= DEBUG ? 0 : 100;
+$fn = getFragmentCount(debug=DEBUG);
 
-TOOTH_COUNT = 14;
-DIAMETER = diameterFromToothCount(TOOTH_SIZE.y, TOOTH_SPACING, TOOTH_COUNT);
+TOOTH_COUNT = 12;
+DIAMETER = getThreadRingDiameter(TOOTH_COUNT) - THREAD_SIZE.z;
 
 HEIGHT = THREAD_SIZE.x;
 SPACER = 2;
@@ -25,101 +27,100 @@ GEAR_DEF = defGear(GEAR_TOOTHS, GEAR_MOD,
                 defBearing(BEARING_DIAMETER, BEARING_HEIGHT, 1)
             ]);
 
-ITERATIONS = $fn > 0 ? $fn : TOOTH_COUNT;
+TOOTH_HEIGHT = TOOTH_SIZE.x + 2 * TOOTH_CLEARANCE;
+SECTION_HEIGHT = (HEIGHT - TOOTH_HEIGHT) / 2;
 
 echo("Tooth count = ", TOOTH_COUNT);
 echo("Diameter = ", DIAMETER);
 echo("Height = ", HEIGHT);
+echo("Tip diameter = ", prop("tipDiameter", GEAR_DEF));
 
-module body() {
+module body(geared=false) {
     step = DEBUG ? (360 / TOOTH_COUNT / 2) : 1;
     
-    toothHeight = TOOTH_SIZE.x + 2 * TOOTH_CLEARANCE;
+    clearedDiameter = DIAMETER - 2 * TOOTH_CLEARANCE;
+    
+    module centeredTooth() {
+        sizeX = TOOTH_SIZE.y + 2 * TOOTH_CLEARANCE;
+        sizeY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
+        
+        translate([-sizeX / 2, 0, 0])
+            tooth2D(sizeX, sizeY);
+    }
     
     module toothRing() {
-        toothX= TOOTH_SIZE.y + 2 * TOOTH_CLEARANCE;
-        toothY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
-        toothSpacing = TOOTH_SPACING - 2 * TOOTH_CLEARANCE;
-        
-        intersection() {
-            circle(r=DIAMETER/2);
-            toothRing2D(toothX, toothY,
-                count=TOOTH_COUNT,
-                spacing=toothSpacing,
-                step=step);
+        for (i = [0:TOOTH_COUNT]) {
+            radius = DIAMETER / 2;
+            apotem = radius * cos(180 / TOOTH_COUNT);
+            a = i * 360 / TOOTH_COUNT;
+            x = sin(a) * apotem;
+            y = cos(a) * apotem;
+            
+            translate([x, y, 0])
+            rotate([0, 0, 180 - i * 360 / TOOTH_COUNT])
+                centeredTooth();
         }
     }
     
     module toothCylinder() {
-        linear_extrude(toothHeight)
-            toothRing();
+        linear_extrude(TOOTH_HEIGHT)
+            difference() {
+                circle(d=clearedDiameter, $fn=TOOTH_COUNT);
+                rotate([0, 0, 360 / TOOTH_COUNT / 2])
+                    toothRing();
+            }
     }
     
     module pulleyCylinder() {
         toothY = TOOTH_SIZE.z + TOOTH_CLEARANCE;
-        cylinder(toothHeight, r=DIAMETER / 2 - toothY);
+        cylinder(TOOTH_HEIGHT, r=clearedDiameter / 2 - toothY, $fn=TOOTH_COUNT);
     }
-    
-    module trigCylinder(height, radius) {
-        coords = [
-            for(i = [0:step:360]) [
-                cos(i) * radius,
-                sin(i) * radius
-            ]
-        ];
-            
-        linear_extrude(height)
-            polygon(coords);
-    }
-    
-    sectionHeight = (HEIGHT - toothHeight) / 2;
     
     module middleSection() {
         chamferSize = TOOTH_SIZE.z + TOOTH_CLEARANCE;
-        smallRadius = DIAMETER / 2 - chamferSize;
-        largeRadius = DIAMETER / 2;
+        small = clearedDiameter - 2 * chamferSize;
         
         union() {
-            cylinder(chamferSize, r1=largeRadius, r2=smallRadius);
+            cylinder(chamferSize, d1=clearedDiameter, d2=small, $fn=TOOTH_COUNT);
             
-            if (GEARED) {
+            if (geared) {
                 toothCylinder();
             } else {
                 pulleyCylinder();
             }
             
             translate([0, 0, TOOTH_SIZE.x + 2 * TOOTH_CLEARANCE - chamferSize])
-                cylinder(chamferSize, r1=smallRadius, r2=largeRadius);
+                cylinder(chamferSize, d1=small, d2=clearedDiameter, $fn=TOOTH_COUNT);
         }
     }
     
     module topBottom() {
-        cylinder(sectionHeight, r=DIAMETER / 2);
+        cylinder(SECTION_HEIGHT, d=clearedDiameter, $fn=TOOTH_COUNT);
     }
     
     union() {
         topBottom();
-        translate([0, 0, sectionHeight])
+        translate([0, 0, SECTION_HEIGHT])
             middleSection();
-        translate([0, 0, sectionHeight + toothHeight])
+        translate([0, 0, SECTION_HEIGHT + TOOTH_HEIGHT])
             topBottom();
     }
 }
 
-module shaft() {        
+module shaft() {
     union() {
         // shaft
-        cylinder(HEIGHT, r=SHAFT_DIAMETER/2);
+        cylinder(HEIGHT, d=SHAFT_DIAMETER);
         // bearing
         translate([0, 0, 0])
-            cylinder(BEARING_HEIGHT, r=BEARING_DIAMETER/2);
+            cylinder(BEARING_HEIGHT, d=BEARING_DIAMETER);
     };
 }
     
-module wheelAssembly() {
+module wheelAssembly(geared=false) {
     module wheel() {
         difference() {
-            body();
+            body(geared=geared);
             shaft();
         }
     }
@@ -129,12 +130,12 @@ module wheelAssembly() {
 
         translate([0, 0, HEIGHT])
             difference() {
-                cylinder(SPACER, r=tipDiameter/2);
-                cylinder(SPACER, r=SHAFT_DIAMETER/2);
+                cylinder(SPACER, d=tipDiameter);
+                cylinder(SPACER, d=SHAFT_DIAMETER);
             }
     }
     
-    if (GEARED) {
+    if (geared) {
         render() {
             // Gear
             translate([0, 0, HEIGHT + SPACER]) 
@@ -153,14 +154,21 @@ module wheelAssembly() {
 
 module test() {
     height = 1;
-    toothHeight = TOOTH_SIZE.x + 2 * TOOTH_CLEARANCE;
-    sectionHeight = (HEIGHT - toothHeight) / 2 + TOOTH_CLEARANCE;
+    
     intersection() {
-        translate([0, 0, -sectionHeight])
+        translate([0, 0, -SECTION_HEIGHT])
             body();
         translate([0, 0, height/2])
             cube([DIAMETER, DIAMETER, height], center=true);
     }
 }
 
-wheelAssembly();
+if (SHOW_RING || SHOW_TOOTH) {
+    start = 0;
+    end = SHOW_RING ? TOOTH_COUNT : 0;
+    
+    % translate([0, 0, SECTION_HEIGHT + TOOTH_HEIGHT / 2])
+            threadRing(TOOTH_COUNT, start=start, end=end);
+}
+
+wheelAssembly(geared=GEARED);

@@ -5,7 +5,6 @@ include <constant.scad>
 $fn = getFragmentCount(debug=false);
 
 SIZE = THREAD_SIZE;
-BOLT = 3.3;
 BOLT_RECESS = 5;
 
 CENTER_HINGE = 20;
@@ -35,19 +34,19 @@ module thread() {
           // Front cylinder
           rotate([0, 90, 0])
           translate([0, front, 0])
-            cylinder(SIZE.x/2, r=SIZE.z/2);
+            cylinder(SIZE.x/2, d=SIZE.z);
           
           // Back cylinder
           rotate([0, 90, 0])
           translate([0, back, 0])
-            cylinder(SIZE.x/2, r=SIZE.z/2);
+            cylinder(SIZE.x/2, d=SIZE.z);
       }
   }
   
   module bolt(posY) {
       rotate([0, 90, 0])
           translate([0, posY, 0])
-            cylinder(SIZE.x/2, r=BOLT/2);
+            cylinder(SIZE.x/2, d=THREAD_BOLT);
   }
   
   module hinge(front=false) {
@@ -151,15 +150,44 @@ module thread() {
   }
 }
 
+function getThreadRingDiameter(tooth) =
+    let(
+        side = THREAD_SIZE.y - THREAD_BOLT,
+        radius = side / (2 * sin(180 / tooth))
+    ) 2 * radius;
+
+module threadRing(tooth, start=0, end=-1) {
+    radius = getThreadRingDiameter(tooth) / 2;
+    interiorAngle = 180 - 360 / tooth;
+    
+    if (end == -1) {
+        end = tooth;
+    }
+    
+    for ( i=[start:end]) {
+        a0 = i * 360 / tooth;
+        x0 = sin(a0) * radius;
+        y0 = cos(a0) * radius;
+        
+        a1 = (i + 1) * 360 / tooth;
+        x1 = sin(a1) * radius;
+        y1 = cos(a1) * radius;
+        
+        a = atan2(y1 - y0, x1 - x0);
+        
+        translate([x0, y0, 0])
+        rotate([0, 90, a - 90])
+            thread();
+    }
+}
+
 module main() {
     thread();
 }
 
-/*
 translate([
     0, 
     -(THREAD_SIZE.y  - THREAD_SIZE.z / 2) / 2, 
     THREAD_SIZE.z / 2
 ])
-*/
     main();

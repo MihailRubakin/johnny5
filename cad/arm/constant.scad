@@ -3,7 +3,7 @@ DEBUG = false;
 $fn = DEBUG ? 0 : 100;
 
 SEGMENT_WIDTH = 20;
-BOLT_DIAMETER= 3;
+BOLT_DIAMETER = 3;
 
 SHORT = 75;
 LONG = 175;

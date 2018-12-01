@@ -1,6 +1,7 @@
 use <lib/gear.scad>
 
 THREAD_SIZE = [50, 20, 7.5];
+THREAD_BOLT = 3.3;
 
 TOOTH_SIZE = [20, 8.15, 5];
 TOOTH_SPACING = (THREAD_SIZE.y - THREAD_SIZE.z) - TOOTH_SIZE.y;
