@@ -2,6 +2,14 @@ include <constant.scad>
 use <servo.scad>
 use <utils.scad>
 
+FILENAME_SHORT = "segmentShort";
+FILENAME_LONG = "segmentLong";
+FILENAME_SERVO_SHORT = "segmentServoShort";
+FILENAME_SERVO_LONG = "segmentServoLong";
+FILENAME_DOUBLE = "segmentDouble";
+
+DEBUG_STL = FILENAME_DOUBLE;
+
 CLEARED_THICKNESS = THICKNESS - 2 * CLEARANCE;
 
 module segment(length, thickness=1) {
@@ -39,8 +47,6 @@ module doubleSegment(short, long, thickness=1) {
             cylinder(thickness, d=BOLT_DIAMETER);
     }
 }
-
-DEBUG_STL = "segmentShort";
 
 function isDebug() = $stl == undef;
 
