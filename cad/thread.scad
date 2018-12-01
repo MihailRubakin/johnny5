@@ -152,7 +152,7 @@ module thread() {
 
 function getThreadRingDiameter(tooth) =
     let(
-        side = THREAD_SIZE.y - THREAD_BOLT,
+        side = getBackY(),
         radius = side / (2 * sin(180 / tooth))
     ) 2 * radius;
 
@@ -160,9 +160,7 @@ module threadRing(tooth, start=0, end=-1) {
     radius = getThreadRingDiameter(tooth) / 2;
     interiorAngle = 180 - 360 / tooth;
     
-    if (end == -1) {
-        end = tooth;
-    }
+    end = end == -1 ? tooth : end;
     
     for ( i=[start:end]) {
         a0 = i * 360 / tooth;
@@ -175,7 +173,7 @@ module threadRing(tooth, start=0, end=-1) {
         
         a = atan2(y1 - y0, x1 - x0);
         
-        translate([x0, y0, 0])
+        % translate([x0, y0, 0])
         rotate([0, 90, a - 90])
             thread();
     }

@@ -6,7 +6,7 @@ include <constant.scad>
 
 DEBUG = false;
 GEARED = true;
-SHOW_RING = false;
+SHOW_RING = true;
 SHOW_TOOTH = false;
 
 $fn = getFragmentCount(debug=DEBUG);
@@ -167,7 +167,7 @@ if (SHOW_RING || SHOW_TOOTH) {
     start = 0;
     end = SHOW_RING ? TOOTH_COUNT : 0;
     
-    % translate([0, 0, SECTION_HEIGHT + TOOTH_HEIGHT / 2])
+    translate([0, 0, SECTION_HEIGHT + TOOTH_HEIGHT / 2])
             threadRing(TOOTH_COUNT, start=start, end=end);
 }
 
