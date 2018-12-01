@@ -50,15 +50,9 @@ module doubleSegment(short, long, thickness=1) {
 
 function isDebug() = $stl == undef;
 
-module main(stl, pos=0, rotationZ=0) {
-    
-    // Debug bed
-    if (isDebug()) {
-        % square(BED_DIMENSION, center=true);
-    }
-    
+module main(stl, pos=0) {    
     translate([pos, pos, 0])
-    rotate([-90, 0, rotationZ]) {
+    rotate([-90, 0, 45]) {
         if (stl == FILENAME_SHORT) {
             // x2
             segment(SHORT, CLEARED_THICKNESS);
@@ -79,10 +73,10 @@ module main(stl, pos=0, rotationZ=0) {
 }
 
 if (isDebug()) {
-    main(
-        stl=DEBUG_STL, 
-        pos=-(BED_DIMENSION - SEGMENT_WIDTH) / 2,
-        rotationZ=45);
+    // Debug bed
+    % square(BED_DIMENSION, center=true);
+    
+    main(stl=DEBUG_STL, pos=-(BED_DIMENSION - SEGMENT_WIDTH) / 2);
 } else {
     echo(str("Exporting ", $stl, ".stl"));
     main(stl=$stl);
