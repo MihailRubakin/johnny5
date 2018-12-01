@@ -59,19 +59,19 @@ module main(stl, pos=0, rotationZ=0) {
     
     translate([pos, pos, 0])
     rotate([-90, 0, rotationZ]) {
-        if (stl == "segmentShort") {
+        if (stl == FILENAME_SHORT) {
             // x2
             segment(SHORT, CLEARED_THICKNESS);
-        } else if (stl == "segmentLong") {
+        } else if (stl == FILENAME_LONG) {
             // x5
             segment(LONG, CLEARED_THICKNESS);
-        } else if (stl == "segmentServoShort") {
+        } else if (stl == FILENAME_SERVO_SHORT) {
             // x1
             servoSegment(SHORT, CLEARED_THICKNESS);
-        } else if (stl == "segmentServoLong") {
+        } else if (stl == FILENAME_SERVO_LONG) {
             // x1
             servoSegment(LONG, CLEARED_THICKNESS);
-        } else if (stl == "segmentDouble") {
+        } else if (stl == FILENAME_DOUBLE) {
             // x1
             doubleSegment(SHORT, LONG, CLEARED_THICKNESS);
         }
