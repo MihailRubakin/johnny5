@@ -40,34 +40,44 @@ module doubleSegment(short, long, thickness=1) {
     }
 }
 
-DEBUG_STL = "segmentLong";
+DEBUG_STL = "segmentShort";
+
 function isDebug() = $stl == undef;
 
-stl = isDebug() ? DEBUG_STL : $stl;
-
-if (isDebug()) {
-    % square(BED_DIMENSION, center=true);
+module main(stl, pos=0, rotationZ=0) {
+    
+    // Debug bed
+    if (isDebug()) {
+        % square(BED_DIMENSION, center=true);
+    }
+    
+    translate([pos, pos, 0])
+    rotate([-90, 0, rotationZ]) {
+        if (stl == "segmentShort") {
+            // x2
+            segment(SHORT, CLEARED_THICKNESS);
+        } else if (stl == "segmentLong") {
+            // x5
+            segment(LONG, CLEARED_THICKNESS);
+        } else if (stl == "segmentServoShort") {
+            // x1
+            servoSegment(SHORT, CLEARED_THICKNESS);
+        } else if (stl == "segmentServoLong") {
+            // x1
+            servoSegment(LONG, CLEARED_THICKNESS);
+        } else if (stl == "segmentDouble") {
+            // x1
+            doubleSegment(SHORT, LONG, CLEARED_THICKNESS);
+        }
+    }
 }
 
-pos = isDebug() ? -(BED_DIMENSION - SEGMENT_WIDTH) / 2 : 0;
-rotationZ = isDebug() ? 45 : 0;
-
-translate([pos, pos, 0])
-rotate([-90, 0, rotationZ]) {
-    if (stl == "segmentShort") {
-        // x2
-        segment(SHORT, CLEARED_THICKNESS);
-    } else if (stl == "segmentLong") {
-        // x5
-        segment(LONG, CLEARED_THICKNESS);
-    } else if (stl == "segmentServoShort") {
-        // x1
-        servoSegment(SHORT, CLEARED_THICKNESS);
-    } else if (stl == "segmentServoLong") {
-        // x1
-        servoSegment(LONG, CLEARED_THICKNESS);
-    } else if (stl == "segmentDouble") {
-        // x1
-        doubleSegment(SHORT, LONG, CLEARED_THICKNESS);
-    }
+if (isDebug()) {
+    main(
+        stl=DEBUG_STL, 
+        pos=-(BED_DIMENSION - SEGMENT_WIDTH) / 2,
+        rotationZ=45);
+} else {
+    echo(str("Exporting ", $stl, ".stl"));
+    main(stl=$stl);
 }

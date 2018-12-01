@@ -12,6 +12,5 @@ stlList=(
 
 for stl in "${stlList[@]}"
 do : 
-	echo "Exporting $stl.stl"
    	openscad -o "cad/arm/$stl.stl" -D"\$stl=\"$stl\"" cad/arm/segment.scad
 done
