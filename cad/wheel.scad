@@ -6,7 +6,7 @@ include <constant.scad>
 
 DEBUG = false;
 GEARED = true;
-SHOW_RING = true;
+SHOW_RING = false;
 SHOW_TOOTH = false;
 
 $fn = getFragmentCount(debug=DEBUG);
@@ -107,13 +107,18 @@ module body(geared=false) {
     }
 }
 
-module shaft() {
+module shaft(geared=false) {
     union() {
+        // Top bearing (only on pulley)
+        if (!geared) {
+            translate([0, 0, HEIGHT - BEARING_HEIGHT])
+                cylinder(BEARING_HEIGHT, d=BEARING_DIAMETER);
+        }
+        
         // shaft
         cylinder(HEIGHT, d=SHAFT_DIAMETER);
         // bearing
-        translate([0, 0, 0])
-            cylinder(BEARING_HEIGHT, d=BEARING_DIAMETER);
+        cylinder(BEARING_HEIGHT, d=BEARING_DIAMETER);
     };
 }
     
@@ -121,7 +126,7 @@ module wheelAssembly(geared=false) {
     module wheel() {
         difference() {
             body(geared=geared);
-            shaft();
+            shaft(geared=geared);
         }
     }
     
