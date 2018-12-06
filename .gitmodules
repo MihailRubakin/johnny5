@@ -1,0 +1,6 @@
+[submodule "libs/nutsnbolts"]
+	path = libs/nutsnbolts
+	url = https://github.com/JohK/nutsnbolts.git
+[submodule "libs/scad-utils"]
+	path = libs/scad-utils
+	url = https://github.com/OskarLinde/scad-utils.git
