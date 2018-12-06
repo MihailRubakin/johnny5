@@ -13,20 +13,19 @@ CLEARANCE_X = 0.15;
 CLEARANCE_Y = 0.3;
 GRIP_CLEARANCE = 0.3;
 
-function getBackY() = SIZE.y - SIZE.z / 2;
 function getHingeSizeY() = SIZE.z + 2 * CLEARANCE_Y;
 
 function getCenterSizeY() = 
     let(
         front = 0,
-        back = getBackY(),
+        back = THREAD_BOLT_DISTANCE,
         hinge= getHingeSizeY(),
         sizeY = (back - front) - hinge
     ) sizeY;
 
 module thread() {
   front = 0;
-  back = getBackY();
+  back = THREAD_BOLT_DISTANCE;
   center = (back - front) / 2;
   
   module frame() {
@@ -152,7 +151,7 @@ module thread() {
 
 function getThreadRingDiameter(tooth) =
     let(
-        side = getBackY(),
+        side = THREAD_BOLT_DISTANCE,
         radius = side / (2 * sin(180 / tooth))
     ) 2 * radius;
 
@@ -173,14 +172,34 @@ module threadRing(tooth, start=0, end=-1) {
         
         a = atan2(y1 - y0, x1 - x0);
         
-        % translate([x0, y0, 0])
+        translate([x0, y0, 0])
         rotate([0, 90, a - 90])
             thread();
     }
 }
 
+module threadChain(tooth) {
+    for(i = [0:tooth - 1])
+        translate([0, (i + 0.5) * THREAD_BOLT_DISTANCE, 0])
+            thread();
+}
+
 module main() {
-    thread();
+    //thread();
+    
+    c = 12;
+    
+    radius = getThreadRingDiameter(c) / 2;
+    a0 = 0 * 360 / c;
+    x0 = sin(a0) * radius;
+    y0 = cos(a0) * radius;
+    
+    translate([x0, y0, 0])
+    sphere(1);
+    
+    rotate([90, 0, 0])
+    threadRing(c, start=0, end=c/2-1);
+    % threadRing(c, start=c/2);
 }
 
 translate([
