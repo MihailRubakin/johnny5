@@ -157,7 +157,6 @@ function getThreadRingDiameter(tooth) =
 
 module threadRing(tooth, start=0, end=-1) {
     radius = getThreadRingDiameter(tooth) / 2;
-    interiorAngle = 180 - 360 / tooth;
     
     end = end == -1 ? tooth : end;
     
@@ -185,21 +184,7 @@ module threadChain(tooth) {
 }
 
 module main() {
-    //thread();
-    
-    c = 12;
-    
-    radius = getThreadRingDiameter(c) / 2;
-    a0 = 0 * 360 / c;
-    x0 = sin(a0) * radius;
-    y0 = cos(a0) * radius;
-    
-    translate([x0, y0, 0])
-    sphere(1);
-    
-    rotate([90, 0, 0])
-    threadRing(c, start=0, end=c/2-1);
-    % threadRing(c, start=c/2);
+    thread();
 }
 
 translate([
