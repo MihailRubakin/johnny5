@@ -10,8 +10,8 @@ SHOW_RING = false;
 SHOW_TOOTH = false;
 
 SHAFT_DIAMETER = WHEEL_SHAFT_DIAMETER;
-BEARING_DIAMETER = 13.3; // With clearance
-BEARING_HEIGHT = 5.3; // With clearance
+BEARING_DIAMETER = WHEEL_BEARING_DIAMETER;
+BEARING_HEIGHT = WHEEL_BEARING_HEIGHT;
 
 $fn = getFragmentCount(debug=DEBUG);
 
@@ -19,17 +19,11 @@ TOOTH_COUNT = WHEEL_THREAD_COUNT;
 DIAMETER = getThreadRingDiameter(TOOTH_COUNT) - THREAD_SIZE.z;
 
 HEIGHT = THREAD_SIZE.x;
-SPACER = 3.5; // TODO: Use chasis thickness (+.5 clearance)
+SPACER = CHASIS_THICKNESS + 0.5; // +0.5 clearance
 
 TOOTH_CLEARANCE = 0.3;
 
-GEAR_TOOTHS = 60;
-GEAR_DEF = defGear(GEAR_TOOTHS, GEAR_MOD, 
-            faceWidth=FACE_WIDTH,
-            shaft=SHAFT_DIAMETER,
-            bearings=[
-                defBearing(BEARING_DIAMETER, BEARING_HEIGHT, 1)
-            ]);
+GEAR_DEF = WHEEL_GEAR_DEF;
 
 TOOTH_HEIGHT = TOOTH_SIZE.x + TOOTH_CLEARANCE / 2;
 SECTION_HEIGHT = (HEIGHT - TOOTH_HEIGHT) / 2;
