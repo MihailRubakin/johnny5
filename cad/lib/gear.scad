@@ -1,7 +1,5 @@
 use <utils.scad>
 
-ITERATIONS = $fn;
-
 function getStepSize(tooth) = 360 / ($fn > 0 && tooth < $fn ? $fn : tooth);
 
 function circularPitchToModule(pitch) = pitch / PI;
@@ -143,6 +141,13 @@ module gear(gearDef) {
         shaft(gearDef);
     }
 }
+
+function getGearCenterDistance(gearA, gearB) = let(
+        diameterA = prop("referenceDiameter", gearA),
+        diameterB = prop("referenceDiameter", gearB),
+        distance = (diameterA + diameterB) / 2,
+        clearance = 0.25 * prop("module", gearA)
+    ) distance + clearance;
 
 mod = diametralPitchToModule(32);
 

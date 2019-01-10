@@ -27,3 +27,32 @@ WHEEL_GEAR_DEF = defGear(WHEEL_GEAR_TOOTHS, GEAR_MOD,
 WHEEL_THREAD_COUNT = 12;
 
 CHASIS_THICKNESS = 2;
+
+TRANSMISSION_SHAFT_DIAMETER = 4;
+TRANSMISSION_BEARING_DIAMETER = 10.3; // With clearance
+TRANSMISSION_BEARING_HEIGHT = 4.3; // With clearance
+
+TRANSMISSION_SMALL_GEAR_DEF= defGear(24, GEAR_MOD, 
+            faceWidth=FACE_WIDTH,
+            shaft=TRANSMISSION_SHAFT_DIAMETER,
+            bearings=[
+                defBearing(TRANSMISSION_BEARING_DIAMETER, 
+                            TRANSMISSION_BEARING_HEIGHT, 1)
+            ]);
+
+TRANSMISSION_LARGE_GEAR_DEF= defGear(56, GEAR_MOD, 
+            faceWidth=FACE_WIDTH,
+            shaft=TRANSMISSION_SHAFT_DIAMETER,
+            bearings=[
+                defBearing(TRANSMISSION_BEARING_DIAMETER, 
+                            TRANSMISSION_BEARING_HEIGHT)
+            ]);
+            
+MOTOR_GEAR_DEF= defGear(14, GEAR_MOD, 
+            faceWidth=FACE_WIDTH,
+            shaft=3.175);
+            
+MOTOR_SCREW_SPACING = [24, 5];
+MOTOR_SCREW_PLAY = 2;
+MOTOR_ROTOR_DIAMETER = 11.5;
+MOTOR_ROTOR_THICKNESS = 3.45;
