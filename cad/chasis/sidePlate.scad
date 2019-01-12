@@ -9,123 +9,98 @@ SHELL_SIZE = 2 * BORDER;
 
 module gearBoxWheel() {
     translate(GEARED_WHEEL_CENTER)
-        circle(THICKNESS + FACE_WIDTH, d=GEARBOX_WHEEL_DIAMETER);
+        circle(d=GEARBOX_WHEEL_DIAMETER);
 }
 
-module gearBoxSmallGear() {
-    translate(SMALL_GEAR_CENTER) 
-        circle(2 * FACE_WIDTH, d=GEARBOX_SMALL_DIAMETER);
+module gearBoxMotor() {
+    translate(MOTOR_GEAR_CENTER)
+    rotate([0, 0, MOTOR_GEAR_ANGLE]) 
+    hull() {
+        translate([0, MOTOR_SCREW_PLAY])
+            circle(d=MOTOR_BODY_DIAMETER);
+        translate([0, -MOTOR_SCREW_PLAY])
+            circle(d=MOTOR_BODY_DIAMETER);
+    }
 }
 
-module gearBoxLargeGear() {
-    translate(SMALL_GEAR_CENTER) 
-        circle(FACE_WIDTH, d=GEARBOX_LARGE_DIAMETER);
-}
-
-module gearBoxMotorGear() {
-    translate(MOTOR_GEAR_CENTER) 
-    rotate([0, 0, MOTOR_GEAR_ANGLE])
-        hull() {
-            translate([0, MOTOR_SCREW_PLAY])
-                circle(FACE_WIDTH, d=GEARBOX_MOTOR_DIAMETER);
-            translate([0, -MOTOR_SCREW_PLAY])
-                circle(FACE_WIDTH, d=GEARBOX_MOTOR_DIAMETER);
-        }
-}
-
-module gearBoxMotorScrews(isMotorPlate) {
+module gearBoxMotorMask() {
     left = MOTOR_SCREW_SPACING.x / 2;
     right = -left;
     back = MOTOR_SCREW_SPACING.y / 2 + MOTOR_SCREW_PLAY;
     front = -back;
     
-    screwZ = isMotorPlate ? 0 : THICKNESS;
-    screwHeight =  FACE_WIDTH + (isMotorPlate ? MOTOR_ROTOR_THICKNESS : 0);
-    
-    translate([0, 0, screwZ])
-    translate(MOTOR_GEAR_CENTER)
-    rotate([0, 0, MOTOR_GEAR_ANGLE]) {
-        hull() {
-            translate([left, front])
-                cylinder(screwHeight, d=3);
-            translate([left, back])
-                cylinder(screwHeight, d=3);
-        }
-        hull() {
-            translate([right, front])
-                cylinder(screwHeight, d=3);
-            translate([right, back])
-                cylinder(screwHeight, d=3);
+    module screwSlots(screwHeight=THICKNESS + INNER_THICKNESS, screwDiameter=3) {
+        translate(MOTOR_GEAR_CENTER)
+        rotate([0, 0, MOTOR_GEAR_ANGLE]) {
+            hull() {
+                translate([left, front])
+                    cylinder(screwHeight, d=screwDiameter);
+                translate([left, back])
+                    cylinder(screwHeight, d=screwDiameter);
+            }
+            hull() {
+                translate([right, front])
+                    cylinder(screwHeight, d=screwDiameter);
+                translate([right, back])
+                    cylinder(screwHeight, d=screwDiameter);
+            }
         }
     }
     
-    if (isMotorPlate) {
+    module gearSlot() {
+        diameter = GEARBOX_MOTOR_DIAMETER + GEAR_CLEARANCE;
+        
         translate(MOTOR_GEAR_CENTER)
         rotate([0, 0, MOTOR_GEAR_ANGLE])
         hull() {
             translate([0, MOTOR_SCREW_PLAY, 0])
-                cylinder(MOTOR_ROTOR_THICKNESS, d=MOTOR_ROTOR_DIAMETER);
+                cylinder(MOTOR_ROTOR_HEIGHT, d=diameter);
             translate([0, -MOTOR_SCREW_PLAY, 0])
-                cylinder(MOTOR_ROTOR_THICKNESS, d=MOTOR_ROTOR_DIAMETER);
+                cylinder(MOTOR_ROTOR_HEIGHT, d=diameter);
         }
-    } else {
-        
     }
-}
-
-module gearBoxShell() {
+    
+    module motorSlot() {
+        translate([0, 0, MOTOR_ROTOR_HEIGHT])
+        linear_extrude(MOTOR_BODY_HEIGHT)
+            gearBoxMotor();
+    }
+    
     union() {
-        gearBoxWheel();
-        gearBoxLargeGear();
-        gearBoxMotorGear();
+        // TODO: Screw head size
+        screwSlots(3, 4);
+        screwSlots();
+        gearSlot();
+        motorSlot();
     }
 }
 
-module outsetedShape() {
-    deltaWheels = SMALL_GEAR_CENTER.y - GEARED_WHEEL_CENTER.y;
+module gearBoxShell(hasMotor=false) {
+    gearBoxWheel();
+    
+    if (hasMotor) {
+         gearBoxMotor();
+    }
+}
+
+module outsetedShape(hasMotor) {
     intersection() {
         union() {
             outset(d=BORDER)
-                gearBoxShell();
-            
-            // Patch hole on top of wheels
-            translate([TOP, SMALL_GEAR_CENTER.y - deltaWheels / 2])
-                square(deltaWheels, center=true);
+                gearBoxShell(hasMotor);
         }
-        gearedShape();
+        roundedShape();
     }
 }
 
-module sidePlate(hasGear=false) {
-    module condShape() {
-        if (hasGear) {
-            gearedShape();
-        } else {
-            ungearedShape();
-        }
-    }
-    
-    module baseShellShape() {
-        shell(d=-SHELL_SIZE)
-            condShape();
-    }
-    
-    module condShellShape() {
+module sidePlate(hasMotor=false) {    
+    module shellShape() {
         difference() {
-            if (hasGear) {
-                difference() {                    
-                    union() {
-                        baseShellShape();
-                        outsetedShape();
-                    }
-                    
-                    gearBoxWheel();
-                    gearBoxSmallGear();
-                }
-            }else {
-                baseShellShape();
+            union() {
+                shell(d=-SHELL_SIZE)
+                    roundedShape();
+                outsetedShape(hasMotor);
             }
-            
             wheelShafts();
         }
     }
@@ -133,19 +108,15 @@ module sidePlate(hasGear=false) {
     module _plate() {
         linear_extrude(THICKNESS)
         difference() {
-            condShape();
-            
+            roundedShape();
             wheelShafts();
-            if (hasGear) {
-                gearBoxWheel();
-            }
         }
     }
     
     module _shell() {
         translate([0, 0, THICKNESS])
-        linear_extrude(FACE_WIDTH)
-            condShellShape();
+        linear_extrude(INNER_THICKNESS)
+            shellShape();
     }
     
     render()
@@ -155,45 +126,15 @@ module sidePlate(hasGear=false) {
             _shell();
         }
         
-        // TODO: SPECIFY SCREW SIZE (head)
-        gearBoxMotorScrews(false);
+        if (hasMotor) {
+            gearBoxMotorMask();
+        }
+        
+        flatPlateScrewSlot(TOP, TOP_PLATE_SIZE);
+        flatPlateScrewSlot(BOTTOM, BOTTOM_PLATE_SIZE, 180);
+        endPlateScrewSlot();
     }
 }
 
-module transmissionPlate() {
-    module _plate() {
-        linear_extrude(MOTOR_ROTOR_THICKNESS)
-        difference() {
-            outsetedShape();
-            wheelShafts();
-        }
-    }
-    
-    module _shell() {
-        translate([0, 0, MOTOR_ROTOR_THICKNESS])
-        linear_extrude(FACE_WIDTH)
-        difference() {
-            outsetedShape();
-            
-            wheelShafts();
-            gearBoxLargeGear();
-            gearBoxMotorGear();
-        }
-    }
-         
-    render()
-    difference() {
-        union() {
-            _plate();
-            _shell();
-        }   
-        gearBoxMotorScrews(true);
-    }
-}
-
-// mirror([0, 1, 0]) sidePlate();
+mirror([0, 1, 0]) sidePlate();
 sidePlate(true);
-
-translate([0, 0, 2 * THICKNESS + 2 * FACE_WIDTH + 50])
-mirror([0, 0, 1])
-    transmissionPlate();

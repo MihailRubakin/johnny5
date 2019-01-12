@@ -10,47 +10,46 @@ include <../constant.scad>
 
 DEBUG = true;
 
+SHOW_THREAD = true;
+SHOW_WHEEL = true;
+
 $fn = getFragmentCount(debug=DEBUG);
 
-module batteryPack() {
+module debugBatteryPack() {
     size = [46, 138, 24];
     translate([0, 0, size.z/2])
         cube(size, center=true);
 }
 
-module motor() {
-    diameter = 35.8;
+module debugMotor() {
+    shaftHeight = 12.3;
+    shaftDiameter = 3.16;
+    
     rotate([0, 90, 0]) {
-        cylinder(13.5, d=3.175);
-        translate([0, 0, 13.5])
-            cylinder(4.5, d=13);
-        translate([0, 0, 18])
-            cylinder(50, d=diameter);
+        translate([0, 0, -shaftHeight])
+            cylinder(shaftHeight, d=shaftDiameter);
+        cylinder(MOTOR_ROTOR_HEIGHT, d=MOTOR_ROTOR_DIAMETER);
+        translate([0, 0, MOTOR_ROTOR_HEIGHT])
+            cylinder(MOTOR_BODY_HEIGHT, d=MOTOR_BODY_DIAMETER);
     }
 }
 
 module debugTransmission() {
     topFront = TOP_FRONT_WHEEL;
     render() {
-        translate([THICKNESS, topFront.y, topFront.z])
+        mirror([1, 0, 0])
+        translate([0, topFront.y, topFront.z])
         rotate([0, 90, 0])
             gear(WHEEL_GEAR_DEF);
         
-        translate([THICKNESS, SMALL_GEAR_CENTER.y, SMALL_GEAR_CENTER.x])
-        rotate([0, 90, 0])
-            gear(TRANSMISSION_SMALL_GEAR_DEF);
-        
-        translate([THICKNESS + FACE_WIDTH, SMALL_GEAR_CENTER.y, SMALL_GEAR_CENTER.x])
-        rotate([0, 90, 0])
-            gear(TRANSMISSION_LARGE_GEAR_DEF);
-        
-        translate([THICKNESS + FACE_WIDTH, MOTOR_GEAR_CENTER.y, MOTOR_GEAR_CENTER.x])
+        mirror([1, 0, 0])
+        translate([0, MOTOR_GEAR_CENTER.y, MOTOR_GEAR_CENTER.x])
         rotate([0, 90, 0])
             gear(MOTOR_GEAR_DEF);
     }
     
-    translate([THICKNESS + FACE_WIDTH, MOTOR_GEAR_CENTER.y, MOTOR_GEAR_CENTER.x])
-        motor();
+    translate([0, MOTOR_GEAR_CENTER.y, MOTOR_GEAR_CENTER.x])
+        debugMotor();
 }
 
 module sidePlates(twoSided = false) {
@@ -76,19 +75,20 @@ module sidePlates(twoSided = false) {
 
 // Frame
 sidePlates(false);
-// coverPlateAssembly();
+coverPlateAssembly();
 
 // Others
-% debugTransmission();
+color("green")
+debugTransmission();
 
 % translate([-THREAD_SIZE.x / 2, 0, 0])
     wheelAssembly(showWheel=SHOW_WHEEL, showThread=SHOW_THREAD);
-
-// Debug bed
-//# rotate([0, 90, 0]) square(190, center=true);
 
 CENTER_X = WIDTH / 2 + THICKNESS;
 
 color("cyan")
 translate([CENTER_X, 0, BOTTOM])
-    batteryPack();
+    debugBatteryPack();
+
+// Debug bed
+// # rotate([0, 90, 0]) square(190, center=true);

@@ -1,7 +1,5 @@
 use <../../libs/scad-utils/morphology.scad>
 
-include <../../libs/nutsnbolts/cyl_head_bolt.scad>
-
 use <../lib/utils.scad>
 
 include <common.scad>
@@ -10,130 +8,80 @@ DEBUG = true;
 
 $fn = getFragmentCount(debug=DEBUG);
 
-NUT_DIAMETER = _get_fam(SCREW_NAME)[_NB_F_NUT_KEY];
-FULL_WIDTH = WIDTH + 2 * THICKNESS;
-
-/*
-module screwHolder() {
-    distance = THICKNESS + SHELL_THICKNESS;
-    height = SCREW_LENGTH - distance;
-    diameter = NUT_DIAMETER + 2 * SCREW_BORDER;
+module topShape(mask=false) {
+    size = TOP_PLATE_SIZE - (mask ? 0 : 1.5 * PLATE_CLEARANCE);
+    offsetY = mask ? 0 : PLATE_CLEARANCE;
     
-    render()
-    translate([-diameter / 2, 0, 0])
-    difference() {
-        translate([0, 0, -SCREW_LENGTH])
-        union() {
-            cylinder(height, d=diameter);
-            translate([0, -diameter / 2, 0])
-                cube([(diameter + THICKNESS) / 2, diameter, height]);
-        }
-        hole_through(SCREW_NAME, SCREW_LENGTH);
-        rotate([0, 0, 180])
-        translate([0, 0, -(SCREW_LENGTH - NUT_DISTANCE)])
-            nutcatch_sidecut(SCREW_NAME, l=NUT_DIAMETER);
-    }
+    translate([TOP, -TOP_PLATE_SIZE + offsetY])
+        square([THICKNESS, size]);
 }
-*/
 
-module endPlateMask(geared=false) {
+module bottomShape(mask=false) {
+    size = BOTTOM_PLATE_SIZE - (mask ? 0 : 1.5 * PLATE_CLEARANCE);
+    offsetY = mask ? 0 : PLATE_CLEARANCE;
+    
+    translate([BOTTOM - THICKNESS, -BOTTOM_PLATE_SIZE + offsetY])
+        square([THICKNESS, size]);
+}
+
+module endPlateMask() {
     union() {
-        topShape(geared);
-        bottomShape();
+        topShape(true);
+        bottomShape(true);
         // Edge
         translate([BOTTOM - THICKNESS, 0])
             square([TOP - BOTTOM + 2 * THICKNESS, THICKNESS]);
     }
 }
 
-module topShape() {
-    size = abs(TOP_GEAR.y) - FILLET - SCREW_SPACING;
-    translate([TOP, -size])
-        square([THICKNESS, size]);
-}
-
-module bottomShape() {
-    size = abs(BOTTOM_FRONT_WHEEL.y) - SHAFT_DIAMETER - SCREW_SPACING;
-    translate([BOTTOM - THICKNESS, -size])
-        square([THICKNESS, size]);
-}
-
-module gearedShell() {
+module roundedShell() {
     shell(d=THICKNESS)
-        gearedShape();
+        roundedShape();
 }
 
-module ungearedShell() {
-    shell(d=THICKNESS)
-        ungearedShape();
-}
-
-module flatPlateScrews(posY, size, rotation=0) {
-    rotVector = [0, 0, rotation];
-    
-    translate([posY, -SCREW_SPACING, 0])
-    rotate(rotVector) 
-    mirror([0, 0, 1])
-        screwHolder();
-    
-    translate([posY, -SCREW_SPACING, FULL_WIDTH])
-    rotate(rotVector)
-        screwHolder();
-    
-    translate([posY, size + SCREW_SPACING, 0])
-    rotate(rotVector)
-    mirror([0, 0, 1])
-        screwHolder();
-    
-    translate([posY, size + SCREW_SPACING, FULL_WIDTH])
-    rotate(rotVector)
-        screwHolder();
-}
-
-module topPlate(geared=false) {
-    size = getTopPlateSize(geared);
-    union() {
+module topPlate() {
+    render()
+    difference() {
         linear_extrude(FULL_WIDTH)
-            topShape(geared);
-        flatPlateScrews(TOP, size);
+            topShape();
+        flatPlateScrewHole(TOP, TOP_PLATE_SIZE);
     }
 }
 
 module bottomPlate() {
-    union() {
+    render()
+    difference() {
         linear_extrude(FULL_WIDTH)
             bottomShape();
-        flatPlateScrews(BOTTOM, BOTTOM_FRONT_WHEEL.y, 180);
+        flatPlateScrewHole(BOTTOM, BOTTOM_PLATE_SIZE, 180);
     }
 }
 
-module gearedEndPlate() {
-    linear_extrude(FULL_WIDTH)
+module endPlate() {    
+    render()
     difference() {
-        gearedShell();
-        endPlateMask(true);
-    }
-}
-
-module ungearedEndPlate() {
-    linear_extrude(WIDTH + 2 * THICKNESS)
-    difference() {
-        ungearedShell();
-        endPlateMask();
+        linear_extrude(FULL_WIDTH)
+        difference() {
+            roundedShell();
+            endPlateMask();
+        }
+        
+        endPlateScrewHole();
     }
 }
 
 module coverPlateAssembly() {
     mirror([1, 0, 0])
-    rotate([0, -90, 0]) {
+    rotate([0, -90, 0]) 
+    {
         color("red") topPlate(true);
         color("blue") bottomPlate();
-        gearedEndPlate();
+        color("purple") endPlate();
 
         mirror([0, 1, 0]) {
             color("blue") topPlate();
             color("red") bottomPlate();
-            ungearedEndPlate();
+            color("purple") endPlate();
         }   
     }
     
@@ -143,5 +91,4 @@ module coverPlateAssembly() {
 
 coverPlateAssembly();
 
-# rotate([0, -90, 0])
-    square(190, center=true);
+// # rotate([0, -90, 0]) square(190, center=true);
