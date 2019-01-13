@@ -23,6 +23,7 @@ module gearBoxMotor() {
     }
 }
 
+// TODO: Offset motor by (shaftLength - faceWidth)
 module gearBoxMotorMask() {
     left = MOTOR_SCREW_SPACING.x / 2;
     right = -left;
@@ -79,7 +80,7 @@ module gearBoxShell(hasMotor=false) {
     gearBoxWheel();
     
     if (hasMotor) {
-         gearBoxMotor();
+        gearBoxMotor();
     }
 }
 
@@ -90,6 +91,18 @@ module outsetedShape(hasMotor) {
                 gearBoxShell(hasMotor);
         }
         roundedShape();
+    }
+}
+
+module sidePlateScrews(nutSlot=false) {
+    translate([0, 0, THICKNESS + INNER_THICKNESS / 2])
+    rotate([0, 90, 90]) {
+        if (nutSlot) {
+            translate([0, 0, -SHELL_SIZE / 2])
+            rotate([0, 0, 180])
+                nutcatch_sidecut(SCREW_NAME);
+        }
+        hole_through(SCREW_NAME, SHELL_SIZE);
     }
 }
 
@@ -119,6 +132,8 @@ module sidePlate(hasMotor=false) {
             shellShape();
     }
     
+    height = TOP - BOTTOM;
+    
     render()
     difference() {
         union() {
@@ -133,8 +148,13 @@ module sidePlate(hasMotor=false) {
         flatPlateScrewSlot(TOP, TOP_PLATE_SIZE);
         flatPlateScrewSlot(BOTTOM, BOTTOM_PLATE_SIZE, 180);
         endPlateScrewSlot();
+        
+        translate([BOTTOM + 1/3 * height, 0, 0])
+            sidePlateScrews(hasMotor);
+        translate([BOTTOM + 2/3 * height, 0, 0])
+            sidePlateScrews(hasMotor);
     }
 }
 
 mirror([0, 1, 0]) sidePlate();
-sidePlate(true);
+color("orange") sidePlate(true);
