@@ -1,12 +1,6 @@
 use <../../libs/scad-utils/morphology.scad>
 
-use <../lib/utils.scad>
-
 include <common.scad>
-
-DEBUG = true;
-
-$fn = getFragmentCount(debug=DEBUG);
 
 module topShape(mask=false) {
     size = TOP_PLATE_SIZE - (mask ? 0 : 1.5 * PLATE_CLEARANCE);
@@ -74,15 +68,15 @@ module coverPlateAssembly() {
     mirror([1, 0, 0])
     rotate([0, -90, 0]) 
     {
-        color("red") topPlate(true);
-        color("blue") bottomPlate();
-        color("purple") endPlate();
+        topPlate();
+        bottomPlate();
+        endPlate();
 
         mirror([0, 1, 0]) {
-            color("blue") topPlate();
-            color("red") bottomPlate();
-            color("purple") endPlate();
-        }   
+            topPlate();
+            bottomPlate();
+            endPlate();
+        }
     }
     
     # rotate([0, -90, 0])

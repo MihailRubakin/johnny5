@@ -84,7 +84,7 @@ debugTransmission();
 % translate([-THREAD_SIZE.x / 2, 0, 0])
     wheelAssembly(showWheel=SHOW_WHEEL, showThread=SHOW_THREAD);
 
-CENTER_X = WIDTH / 2 + THICKNESS;
+CENTER_X = FULL_WIDTH / 2;
 
 color("cyan")
 translate([CENTER_X, 0, BOTTOM])

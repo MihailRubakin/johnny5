@@ -10,7 +10,7 @@ use <../lib/utils.scad>
 include <../constant.scad>
 
 // TODO: Move to constant file
-WIDTH = 75;
+WIDTH = 136;
 GEAR_CLEARANCE = 1;
 THICKNESS = CHASIS_THICKNESS;
 

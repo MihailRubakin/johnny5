@@ -10,8 +10,7 @@ stlList=(
 	"sidePlateBackRight"
 	"coverPlateTop"
 	"coverPlateBottom"
-	"coverPlateFront"
-	"coverPlateBack"
+	"coverPlateEnd"
 )
 
 for stl in "${stlList[@]}"

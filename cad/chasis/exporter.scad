@@ -1,7 +1,11 @@
+use <../lib/utils.scad>
+
 use <sidePlate.scad>
 use <coverPlate.scad>
 
 include <common.scad>
+
+$fn = getFragmentCount(debug=false);
 
 FILENAME_SIDE_FRONT_LEFT = "sidePlateFrontLeft";
 FILENAME_SIDE_FRONT_RIGHT = "sidePlateFrontRight";
@@ -9,10 +13,9 @@ FILENAME_SIDE_BACK_LEFT = "sidePlateBackLeft";
 FILENAME_SIDE_BACK_RIGHT = "sidePlateBackRight";
 FILENAME_COVER_TOP = "coverPlateTop";
 FILENAME_COVER_BOTTOM = "coverPlateBottom";
-FILENAME_COVER_FRONT = "coverPlateFront";
-FILENAME_COVER_BACK = "coverPlateBack";
+FILENAME_COVER_END = "coverPlateEnd";
 
-DEBUG_STL = FILENAME_COVER_BACK;
+DEBUG_STL = FILENAME_COVER_END;
 
 function isDebug() = $stl == undef;
 
@@ -35,11 +38,8 @@ module main(stl) {
         translate([0, 0, BOTTOM])
         rotate([0, 90, 0])
             bottomPlate();
-    } else if (stl == FILENAME_COVER_FRONT) {
+    } else if (stl == FILENAME_COVER_END) {
         endPlate();
-    } else if (stl == FILENAME_COVER_BACK) {
-        mirror([0, 1, 0])
-            endPlate();
     }
 }
 
