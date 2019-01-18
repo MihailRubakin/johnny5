@@ -4,7 +4,7 @@ use <tooth.scad>
 use <thread.scad>
 include <constant.scad>
 
-DEBUG = false;
+DEBUG = true;
 GEARED = true;
 SHOW_RING = false;
 SHOW_TOOTH = false;
@@ -19,7 +19,6 @@ TOOTH_COUNT = WHEEL_THREAD_COUNT;
 DIAMETER = getThreadRingDiameter(TOOTH_COUNT) - THREAD_SIZE.z;
 
 HEIGHT = THREAD_SIZE.x;
-SPACER = CHASIS_THICKNESS + 0.5; // +0.5 clearance
 
 TOOTH_CLEARANCE = 0.3;
 
@@ -91,16 +90,22 @@ module body(geared=false) {
         }
     }
     
-    module topBottom() {
+    module top() {
+        heightDifference = geared ? FACE_WIDTH : 0;
+        height = SECTION_HEIGHT - heightDifference;
+        cylinder(height, d=clearedDiameter);
+    }
+    
+    module bottom() {
         cylinder(SECTION_HEIGHT, d=clearedDiameter);
     }
 
     union() {
-        topBottom();
+        bottom();
         translate([0, 0, SECTION_HEIGHT])
             middleSection();
         translate([0, 0, SECTION_HEIGHT + TOOTH_HEIGHT])
-            topBottom();
+            top();
     }
 }
 
@@ -127,23 +132,11 @@ module wheelAssembly(geared=false) {
         }
     }
     
-    module spacer() {
-        tipDiameter = prop("tipDiameter", GEAR_DEF);
-
-        translate([0, 0, HEIGHT])
-            difference() {
-                cylinder(SPACER, d=tipDiameter);
-                cylinder(SPACER, d=SHAFT_DIAMETER);
-            }
-    }
-    
     if (geared) {
         render() {
             // Gear
-            translate([0, 0, HEIGHT + SPACER]) 
+            translate([0, 0, HEIGHT - FACE_WIDTH]) 
                 gear(GEAR_DEF);
-            
-            spacer();
             
             wheel();
         }
