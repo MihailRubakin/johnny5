@@ -44,9 +44,6 @@ module main(stl) {
 }
 
 if (isDebug()) {
-    // Debug bed
-    # square(BED_DIMENSION, center=true);
-    
     main(stl=DEBUG_STL);
 } else {
     echo(str("Exporting ", $stl, ".stl"));

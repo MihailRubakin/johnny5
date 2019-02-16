@@ -22,8 +22,13 @@ FILLET = 10;
 
 SCREW_SPACING = 10;
 SCREW_NAME = "M3";
-SCREW_LENGTH = 12;
-SCREW_NUT_DISTANCE = 2 * THICKNESS;
+
+COVER_SREW_LENGTH = 12;
+COVER_HEAD_THICKNESS = 3;
+COVER_HEAD_DIAMETER = 5.4;
+COVER_HEAD_CLEARANCE = 3;
+
+COVER_THICKNESS = COVER_HEAD_THICKNESS + COVER_HEAD_CLEARANCE;
 
 PLATE_CLEARANCE = 0.3;
 
@@ -144,35 +149,40 @@ module roundedShape() {
 }
 
 // Screws
-module screwHoleThrought() {
-    rotate([0, -90, 0])
-    translate([0, 0, 1.5 * THICKNESS])
-        hole_through(SCREW_NAME, 3 * THICKNESS);
+module coverScrew() {
+    rotate([0, -90, 0]) {
+        translate([0, 0, COVER_HEAD_CLEARANCE])
+            cylinder(COVER_HEAD_THICKNESS + 1, d=COVER_HEAD_DIAMETER);
+        translate([0, 0, COVER_HEAD_CLEARANCE])
+            hole_through(SCREW_NAME, COVER_SREW_LENGTH);
+    }
 }
 
-module dualScrewHole(posX, posY, rotation) {
+module dualCoverScrewHole(posX, posY, rotation) {
     rotVector = [0, 0, rotation];
     
     translate([posX, posY, SCREW_OFFSET_X])
     rotate(rotVector) 
     mirror([0, 0, 1])
-        screwHoleThrought();
+        coverScrew();
     
     translate([posX, posY, FULL_WIDTH - SCREW_OFFSET_X])
     rotate(rotVector)
-        screwHoleThrought();
+        coverScrew();
 }
 
 module screwSlot(rotation=0) {
-    topClearance = 10;
+    topClearance = COVER_HEAD_CLEARANCE;
+    bottomClearance = 2; // For deeper slot
+    length = COVER_SREW_LENGTH + topClearance + bottomClearance;
     
     translate([0, 0, SCREW_OFFSET_X])
     rotate([0, 90, 0])
     rotate([rotation, 0, 0]) {
         translate([0, 0, topClearance])
-            hole_through(SCREW_NAME, SCREW_LENGTH + topClearance);
+            hole_through(SCREW_NAME, length);
         rotate([0, 0, 180])
-        translate([0, 0, -SCREW_NUT_DISTANCE])
+        translate([0, 0, -COVER_SREW_LENGTH / 2])
             nutcatch_sidecut(SCREW_NAME);
     }
 }
@@ -180,8 +190,8 @@ module screwSlot(rotation=0) {
 module flatPlateScrewHole(posX, size, rotation=0) {
     rotVector = [0, 0, rotation];
     
-    dualScrewHole(posX, -SCREW_SPACING, rotation);
-    dualScrewHole(posX, -size + SCREW_SPACING, rotation);
+    dualCoverScrewHole(posX, -SCREW_SPACING, rotation);
+    dualCoverScrewHole(posX, -size + SCREW_SPACING, rotation);
 }
 
 module flatPlateScrewSlot(posX, size, rotation=0) {
@@ -203,12 +213,12 @@ function getEndPlateDiagScrew() = let(
     ];
 
 module endPlateScrewHole() {
-    dualScrewHole(TOP, -TOP_PLATE_SIZE - SCREW_SPACING, 0);
-    dualScrewHole(BOTTOM, -BOTTOM_PLATE_SIZE - SCREW_SPACING, 180);
-    dualScrewHole(TOP_FRONT_WHEEL.z, TOP_FRONT_WHEEL.y - CHASIS_WHEEL_SIZE / 2, 90);
+    dualCoverScrewHole(TOP, -TOP_PLATE_SIZE - SCREW_SPACING, 180);
+    dualCoverScrewHole(BOTTOM, -BOTTOM_PLATE_SIZE - SCREW_SPACING, 0);
+    dualCoverScrewHole(TOP_FRONT_WHEEL.z, TOP_FRONT_WHEEL.y - CHASIS_WHEEL_SIZE / 2, 90);
     
     diag = getEndPlateDiagScrew();
-    dualScrewHole(diag.x, diag.y, diag[2] + 90);
+    dualCoverScrewHole(diag.x, diag.y, diag[2] + 90);
 }
 
 module endPlateScrewSlot() {

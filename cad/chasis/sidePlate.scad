@@ -23,7 +23,6 @@ module gearBoxMotor() {
     }
 }
 
-// TODO: Offset motor by (shaftLength - faceWidth)
 module gearBoxMotorMask() {
     left = MOTOR_SCREW_SPACING.x / 2;
     right = -left;
@@ -50,14 +49,15 @@ module gearBoxMotorMask() {
     
     module gearSlot() {
         diameter = GEARBOX_MOTOR_DIAMETER + GEAR_CLEARANCE;
+        height = MOTOR_ROTOR_HEIGHT + MOTOR_PIGNON_BASE;
         
         translate(MOTOR_GEAR_CENTER)
         rotate([0, 0, MOTOR_GEAR_ANGLE])
         hull() {
             translate([0, MOTOR_SCREW_PLAY, 0])
-                cylinder(MOTOR_ROTOR_HEIGHT, d=diameter);
+                cylinder(height, d=diameter);
             translate([0, -MOTOR_SCREW_PLAY, 0])
-                cylinder(MOTOR_ROTOR_HEIGHT, d=diameter);
+                cylinder(height, d=diameter);
         }
     }
     
@@ -72,7 +72,10 @@ module gearBoxMotorMask() {
         screwSlots(3, 4);
         screwSlots();
         gearSlot();
-        motorSlot();
+        translate([0, 0, MOTOR_PIGNON_BASE]) {
+            
+            motorSlot();
+        }
     }
 }
 
@@ -98,11 +101,11 @@ module sidePlateScrews(nutSlot=false) {
     translate([0, 0, THICKNESS + INNER_THICKNESS / 2])
     rotate([0, 90, 90]) {
         if (nutSlot) {
-            translate([0, 0, -SHELL_SIZE / 2])
+            translate([0, 0, -COVER_SREW_LENGTH/ 2])
             rotate([0, 0, 180])
                 nutcatch_sidecut(SCREW_NAME);
         }
-        hole_through(SCREW_NAME, SHELL_SIZE);
+        hole_through(SCREW_NAME, SHELL_SIZE + 1);
     }
 }
 

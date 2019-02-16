@@ -4,7 +4,7 @@ use <tooth.scad>
 use <thread.scad>
 include <constant.scad>
 
-DEBUG = true;
+DEBUG = false;
 GEARED = true;
 SHOW_RING = false;
 SHOW_TOOTH = false;
@@ -91,7 +91,7 @@ module body(geared=false) {
     }
     
     module top() {
-        heightDifference = geared ? FACE_WIDTH : 0;
+        heightDifference = geared ? WHEEL_GEAR_FACE_WIDTH : 0;
         height = SECTION_HEIGHT - heightDifference;
         cylinder(height, d=clearedDiameter);
     }
@@ -135,7 +135,7 @@ module wheelAssembly(geared=false) {
     if (geared) {
         render() {
             // Gear
-            translate([0, 0, HEIGHT - FACE_WIDTH]) 
+            translate([0, 0, HEIGHT - WHEEL_GEAR_FACE_WIDTH]) 
                 gear(GEAR_DEF);
             
             wheel();
