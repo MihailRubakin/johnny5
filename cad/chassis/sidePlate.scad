@@ -4,9 +4,6 @@ include <common.scad>
 
 // $vpr = [0, 0, -90];
 
-// TODO: Move to constant.scad
-SHELL_SIZE = 2 * BORDER;
-
 module gearBoxWheel() {
     translate(GEARED_WHEEL_CENTER)
         circle(d=GEARBOX_WHEEL_DIAMETER);
@@ -80,7 +77,7 @@ module gearBoxMotorMask() {
 }
 
 module gearBoxShell(hasMotor=false) {
-    gearBoxWheel();
+    // gearBoxWheel();
     
     if (hasMotor) {
         gearBoxMotor();
@@ -101,21 +98,29 @@ module sidePlateScrews(nutSlot=false) {
     translate([0, 0, THICKNESS + INNER_THICKNESS / 2])
     rotate([0, 90, 90]) {
         if (nutSlot) {
-            translate([0, 0, -COVER_SREW_LENGTH/ 2])
+            translate([0, 0, -BORDER/ 2])
             rotate([0, 0, 180])
                 nutcatch_sidecut(SCREW_NAME);
         }
-        hole_through(SCREW_NAME, SHELL_SIZE + 1);
+        hole_through(SCREW_NAME, BORDER + 1);
     }
 }
 
 module sidePlate(hasMotor=false) {    
+    module wheelsShell() {
+        wheels2D = toSide2D(WHEELS);
+        for (pos = wheels2D)
+            translate(pos)
+            circle(d=WHEEL_SHELL_DIAMETER);
+    }
+    
     module shellShape() {
         difference() {
             union() {
-                shell(d=-SHELL_SIZE)
+                shell(d=-BORDER)
                     roundedShape();
                 outsetedShape(hasMotor);
+                wheelsShell();
             }
             wheelShafts();
         }

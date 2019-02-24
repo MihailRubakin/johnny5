@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir -p cad/chasis/stl
+mkdir -p cad/chassis/stl
 
 # Export segments
 stlList=(
@@ -15,5 +15,5 @@ stlList=(
 
 for stl in "${stlList[@]}"
 do : 
-   	openscad -o "cad/chasis/stl/$stl.stl" -D"\$stl=\"$stl\"" cad/chasis/exporter.scad
+   	openscad -o "cad/chassis/stl/$stl.stl" -D"\$stl=\"$stl\"" cad/chassis/exporter.scad
 done

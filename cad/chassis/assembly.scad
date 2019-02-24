@@ -12,8 +12,8 @@ include <../constant.scad>
 
 DEBUG = true;
 
-SHOW_THREAD = true;
-SHOW_WHEEL = true;
+SHOW_THREAD = false;
+SHOW_WHEEL = false;
 
 $fn = getFragmentCount(debug=DEBUG);
 

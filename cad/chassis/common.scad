@@ -15,7 +15,7 @@ GEAR_CLEARANCE = 1;
 THICKNESS = CHASIS_THICKNESS;
 
 FULL_WIDTH = WIDTH + 2 * THICKNESS;
-BORDER = THREAD_SIZE.z + 2;
+BORDER = 8;//THREAD_SIZE.z + 2;
 
 ROUNDING = 5;
 FILLET = 10;
@@ -29,6 +29,8 @@ COVER_HEAD_DIAMETER = 5.4;
 COVER_HEAD_CLEARANCE = 3;
 
 COVER_THICKNESS = COVER_HEAD_THICKNESS + COVER_HEAD_CLEARANCE;
+
+WHEEL_SHELL_DIAMETER = 14;
 
 PLATE_CLEARANCE = 0.3;
 
@@ -182,7 +184,7 @@ module screwSlot(rotation=0) {
         translate([0, 0, topClearance])
             hole_through(SCREW_NAME, length);
         rotate([0, 0, 180])
-        translate([0, 0, -COVER_SREW_LENGTH / 2])
+        translate([0, 0, -BORDER / 2])
             nutcatch_sidecut(SCREW_NAME);
     }
 }
