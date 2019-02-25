@@ -108,7 +108,7 @@ module sidePlateScrews(nutSlot=false) {
 
 module sidePlate(hasMotor=false) {    
     module wheelsShell() {
-        wheels2D = toSide2D(WHEELS);
+        wheels2D = toSide2D(getFrontWheelsPos());
         for (pos = wheels2D)
             translate(pos)
             circle(d=WHEEL_SHELL_DIAMETER);

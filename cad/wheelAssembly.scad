@@ -136,6 +136,12 @@ wheels = concat(bottomMiddleWheels, [
     topBackWheel
 ]);
 
+frontWheels = [
+    bottomMiddleWheels[0],
+    bottomFrontWheel,
+    topFrontWheel
+];
+
 module wheelAssembly(showWheel=true, showThread=true) {
     
     if (showWheel) {
@@ -218,6 +224,7 @@ module wheelAssembly(showWheel=true, showThread=true) {
 }
 
 function getWheelsPos() = wheels;
+function getFrontWheelsPos() = frontWheels;
 function getTopFront() = topFrontWheel;
 function getTopBack() = topBackWheel;
 function getBottomFront() = bottomFrontWheel;
