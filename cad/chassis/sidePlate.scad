@@ -26,7 +26,7 @@ module gearBoxMotorMask() {
     back = MOTOR_SCREW_SPACING.y / 2 + MOTOR_SCREW_PLAY;
     front = -back;
     
-    module screwSlots(screwHeight=THICKNESS + INNER_THICKNESS, screwDiameter=3) {
+    module screwSlots(screwHeight=THICKNESS + INNER_THICKNESS, screwDiameter=3.3) {
         translate(MOTOR_GEAR_CENTER)
         rotate([0, 0, MOTOR_GEAR_ANGLE]) {
             hull() {
@@ -66,7 +66,7 @@ module gearBoxMotorMask() {
     
     union() {
         // TODO: Screw head size
-        screwSlots(3, 4);
+        screwSlots(COVER_HEAD_THICKNESS, COVER_HEAD_DIAMETER);
         screwSlots();
         gearSlot();
         translate([0, 0, MOTOR_PIGNON_BASE]) {
