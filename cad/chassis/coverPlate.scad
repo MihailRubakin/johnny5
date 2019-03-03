@@ -6,16 +6,17 @@ module topShape(mask=false) {
     size = TOP_PLATE_SIZE - (mask ? 0 : 1.5 * PLATE_CLEARANCE);
     offsetY = mask ? 0 : PLATE_CLEARANCE;
     
-    translate([TOP, -TOP_PLATE_SIZE + offsetY])
+    translate([TOP + PLATE_CLEARANCE, -TOP_PLATE_SIZE + offsetY])
         square([COVER_THICKNESS, size]);
 }
 
 module bottomShape(mask=false) {
-    size = BOTTOM_PLATE_SIZE - (mask ? 0 : 1.5 * PLATE_CLEARANCE);
+    size = BOTTOM_PLATE_SIZE - (mask ? 0 : PLATE_CLEARANCE);
     offsetY = mask ? 0 : PLATE_CLEARANCE;
+    thickness = COVER_THICKNESS + (mask ? PLATE_CLEARANCE  : 0);
     
-    translate([BOTTOM - COVER_THICKNESS, -BOTTOM_PLATE_SIZE + offsetY])
-        square([COVER_THICKNESS, size]);
+    translate([BOTTOM - COVER_THICKNESS - PLATE_CLEARANCE, -BOTTOM_PLATE_SIZE + offsetY])
+        square([thickness, 2 * size]);
 }
 
 module endPlateMask() {
@@ -24,12 +25,13 @@ module endPlateMask() {
         bottomShape(true);
         // Edge
         translate([BOTTOM - COVER_THICKNESS, 0])
-            square([TOP - BOTTOM + 2 * COVER_THICKNESS, COVER_THICKNESS]);
+            square([TOP - BOTTOM + 2 * COVER_THICKNESS + PLATE_CLEARANCE, COVER_THICKNESS + PLATE_CLEARANCE]);
     }
 }
 
 module roundedShell() {
     shell(d=COVER_THICKNESS)
+    outset(d=PLATE_CLEARANCE)
         roundedShape();
 }
 
@@ -47,7 +49,10 @@ module bottomPlate() {
     difference() {
         linear_extrude(FULL_WIDTH)
             bottomShape();
+        
         flatPlateScrewHole(BOTTOM, BOTTOM_PLATE_SIZE, 0);
+        mirror([0, 1, 0])
+            flatPlateScrewHole(BOTTOM, BOTTOM_PLATE_SIZE, 0);
     }
 }
 
@@ -69,14 +74,14 @@ module coverPlateAssembly() {
     rotate([0, -90, 0]) 
     {
         topPlate();
-        bottomPlate();
         endPlate();
 
         mirror([0, 1, 0]) {
             topPlate();
-            bottomPlate();
             endPlate();
         }
+        
+        bottomPlate();
     }
     
     # rotate([0, -90, 0])

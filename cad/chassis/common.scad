@@ -153,10 +153,10 @@ module roundedShape() {
 // Screws
 module coverScrew() {
     rotate([0, -90, 0]) {
-        translate([0, 0, COVER_HEAD_CLEARANCE])
+        translate([0, 0, COVER_HEAD_CLEARANCE + PLATE_CLEARANCE])
             cylinder(COVER_HEAD_THICKNESS + 1, d=COVER_HEAD_DIAMETER);
-        translate([0, 0, COVER_HEAD_CLEARANCE])
-            hole_through(SCREW_NAME, COVER_SREW_LENGTH);
+        translate([0, 0, COVER_HEAD_CLEARANCE + PLATE_CLEARANCE])
+            hole_through(SCREW_NAME, COVER_SREW_LENGTH + PLATE_CLEARANCE);
     }
 }
 
