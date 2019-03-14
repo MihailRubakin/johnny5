@@ -11,6 +11,8 @@ stlList=(
 	"coverPlateTop"
 	"coverPlateBottom"
 	"coverPlateEnd"
+  "wheelPlateFront"
+  "wheelPlateBack"
 )
 
 for stl in "${stlList[@]}"

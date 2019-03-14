@@ -5,6 +5,7 @@ use <../wheelAssembly.scad>
 include <common.scad>
 use <sidePlate.scad>
 use <coverPlate.scad>
+use <wheelPlate.scad>
 
 use <../arm/arm.scad>
 
@@ -13,15 +14,9 @@ include <../constant.scad>
 DEBUG = true;
 
 SHOW_THREAD = false;
-SHOW_WHEEL = false;
+SHOW_WHEEL = true;
 
 $fn = getFragmentCount(debug=DEBUG);
-
-module debugBatteryPack() {
-    size = [46, 138, 24];
-    translate([0, 0, size.z/2])
-        cube(size, center=true);
-}
 
 module debugMotor() {
     shaftHeight = 12.3;
@@ -86,6 +81,15 @@ module main() {
     // Frame
     sidePlates(false);
     coverPlateAssembly();
+    
+    color("orange")
+    translate([-THREAD_SIZE.x, 0, 0])
+    rotate([0, -90, 0])
+    union() {
+        mirror([0, 1, 0])
+            wheelPlate(true);
+        wheelPlate();
+    }
 
     // Others
     color("green")
@@ -95,10 +99,6 @@ module main() {
         wheelAssembly(showWheel=SHOW_WHEEL, showThread=SHOW_THREAD);
 
     CENTER_X = FULL_WIDTH / 2;
-
-    color("cyan")
-    translate([CENTER_X, 0, BOTTOM])
-        debugBatteryPack();
 
     translate([WIDTH / 2, -TOP_FRONT_WHEEL.y / 2, TOP + THICKNESS])
     rotate([0, 0, -90])

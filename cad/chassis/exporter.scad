@@ -2,6 +2,7 @@ use <../lib/utils.scad>
 
 use <sidePlate.scad>
 use <coverPlate.scad>
+use <wheelPlate.scad>
 
 include <common.scad>
 
@@ -14,8 +15,10 @@ FILENAME_SIDE_BACK_RIGHT = "sidePlateBackRight";
 FILENAME_COVER_TOP = "coverPlateTop";
 FILENAME_COVER_BOTTOM = "coverPlateBottom";
 FILENAME_COVER_END = "coverPlateEnd";
+FILENAME_WHEEL_FRONT = "wheelPlateFront";
+FILENAME_WHEEL_BACK = "wheelPlateBack";
 
-DEBUG_STL = FILENAME_COVER_END;
+DEBUG_STL = FILENAME_WHEEL_BACK;
 
 function isDebug() = $stl == undef;
 
@@ -40,6 +43,11 @@ module main(stl) {
             bottomPlate();
     } else if (stl == FILENAME_COVER_END) {
         endPlate();
+    } else if (stl == FILENAME_WHEEL_FRONT) {
+        wheelPlate();
+    } else if (stl == FILENAME_WHEEL_BACK) {
+        mirror([0, 1, 0])
+            wheelPlate(true);
     }
 }
 

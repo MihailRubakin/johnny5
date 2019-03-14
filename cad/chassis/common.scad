@@ -203,6 +203,18 @@ module flatPlateScrewSlot(posX, size, rotation=0) {
             screwSlot(rotation);
 }
 
+module sidePlateScrews(nutSlot=false) {
+    translate([0, 0, THICKNESS + INNER_THICKNESS / 2])
+    rotate([0, 90, 90]) {
+        if (nutSlot) {
+            translate([0, 0, -BORDER/ 2])
+            rotate([0, 0, 180])
+                nutcatch_sidecut(SCREW_NAME);
+        }
+        hole_through(SCREW_NAME, BORDER + 1);
+    }
+}
+
 function getEndPlateDiagScrew() = let(
         angle = atan2(BOTTOM_FRONT.y - MIDDLE_FRONT.y, BOTTOM_FRONT.z - MIDDLE_FRONT.z),
         reverseAngle = atan2(BOTTOM_FRONT.z - MIDDLE_FRONT.z,   BOTTOM_FRONT.y - MIDDLE_FRONT.y),
