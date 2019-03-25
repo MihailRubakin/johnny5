@@ -1,32 +1,39 @@
 include <constant.scad>
 use <utils.scad>
 
+BOLT_HEAD_DIAMETER = 5.6;
+BOLT_HEAD_THICKNESS = 2.9;
+
+BASE_THICKNESS = CLAW_WIDTH - SEGMENT_WIDTH / 2;
+SIZE_Z = cos(TOP_SLOPE) * SHORT;
+
+module clawBolts(boltY, sizeY, length, diameter=BOLT_DIAMETER) {
+    hingeDuplicator([
+        -boltY,
+        -(sizeY - boltY)
+    ]) {
+        translate([0, 0, 1/4 * SIZE_Z])
+        rotate([0, 90, 0])
+            cylinder(length, d=diameter);
+        translate([0, 0, 3/4 * SIZE_Z])
+        rotate([0, 90, 0])
+            cylinder(length, d=diameter);
+    }
+}
+
 module clawBase(boltY, sizeY) {
-    sizeX = CLAW_WIDTH - SEGMENT_WIDTH / 2;
-    sizeZ = cos(TOP_SLOPE) * SHORT;
-    
     difference() {
         translate([
             0, 
             -sizeY, 
             0
         ]) cube([
-                sizeX, 
+                BASE_THICKNESS, 
                 sizeY, 
-                sizeZ
+                SIZE_Z
             ]);
     
-        hingeDuplicator([
-            -boltY,
-            -(sizeY - boltY)
-        ]) {
-            translate([0, 0, 1/4 * sizeZ])
-            rotate([0, 90, 0])
-                cylinder(sizeX, d=BOLT_DIAMETER);
-            translate([0, 0, 3/4 * sizeZ])
-            rotate([0, 90, 0])
-                cylinder(sizeX, d=BOLT_DIAMETER);
-        }
+        clawBolts(boltY, sizeY, BASE_THICKNESS);
     }
 }
 
@@ -75,22 +82,32 @@ module clawHinge(size, angle, width=1, thickness=1) {
     sizeY = getSizeY(thickness=thickness, center=CENTER);
     top = getTopCoords(size, angle);
     
-    translate([0, yPos[0], 0])
-        clawSingleSection(top, width, thickness);    
+    baseX = -(CLAW_WIDTH + SEGMENT_WIDTH / 2);
+    boltY = 3 / 2 * thickness;
     
-    translate([0, yPos[2], 0])
-        clawSingleSection(top, width, CENTER + thickness);
-    
-    hingeDuplicator([
-        yPos[4],
-        yPos[6]
-    ]) {
-        clawDoubleSection(top, width, thickness);
+    module clawAssembly() {
+        translate([0, yPos[0], 0])
+            clawSingleSection(top, width, thickness);    
+        
+        translate([0, yPos[2], 0])
+            clawSingleSection(top, width, CENTER + thickness);
+        
+        hingeDuplicator([
+            yPos[4],
+            yPos[6]
+        ]) {
+            clawDoubleSection(top, width, thickness);
+        }
+        
+        translate([baseX, 0, 0])
+            clawBase(boltY, sizeY);
     }
     
-    boltY = 3 / 2 * thickness;
-    translate([-(CLAW_WIDTH + SEGMENT_WIDTH / 2), 0, 0])
-        clawBase(boltY, sizeY);
+    difference() {
+        clawAssembly();
+        translate([baseX + BASE_THICKNESS - BOLT_HEAD_THICKNESS, 0, 0])
+            clawBolts(boltY, sizeY, top.y, BOLT_HEAD_DIAMETER);
+    }
 }
 
 translate([0, 0, CLAW_WIDTH + SEGMENT_WIDTH / 2])

@@ -8,9 +8,7 @@ FILENAME_SERVO_SHORT = "segmentServoShort";
 FILENAME_SERVO_LONG = "segmentServoLong";
 FILENAME_DOUBLE = "segmentDouble";
 
-DEBUG_STL = FILENAME_DOUBLE;
-
-CLEARED_THICKNESS = THICKNESS - 2 * CLEARANCE;
+DEBUG_STL = FILENAME_SERVO_SHORT;
 
 module segment(length, thickness=1) {
     rotate([90, 0, 0])
@@ -55,19 +53,19 @@ module main(stl, pos=0) {
     rotate([-90, 0, 45]) {
         if (stl == FILENAME_SHORT) {
             // x2
-            segment(SHORT, CLEARED_THICKNESS);
+            segment(SHORT, THICKNESS);
         } else if (stl == FILENAME_LONG) {
             // x5
-            segment(LONG, CLEARED_THICKNESS);
+            segment(LONG, THICKNESS);
         } else if (stl == FILENAME_SERVO_SHORT) {
             // x1
-            servoSegment(SHORT, CLEARED_THICKNESS);
+            servoSegment(SHORT, THICKNESS);
         } else if (stl == FILENAME_SERVO_LONG) {
             // x1
-            servoSegment(LONG, CLEARED_THICKNESS);
+            servoSegment(LONG, THICKNESS);
         } else if (stl == FILENAME_DOUBLE) {
             // x1
-            doubleSegment(SHORT, LONG, CLEARED_THICKNESS);
+            doubleSegment(SHORT, LONG, THICKNESS);
         }
     }
 }

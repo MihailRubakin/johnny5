@@ -88,6 +88,66 @@ module coverPlateAssembly() {
         wheelShafts();
 }
 
-coverPlateAssembly();
+// coverPlateAssembly();
+
+// TODO: Test [25, 69, 47] x2
+BATTERY_SIZE = [25, 69, 47];
+// BATTERY_SIZE = [24, 138, 46];
+
+module batteryHolder(mask=false) {
+    BOTTOM_THICKNESS = 2;
+    BORDER = 5;
+    COVER = 2;
+    
+    BATTERY_SPACING = 2;
+    
+    module debugBattery() {
+        offsetZ = (BATTERY_SIZE.z + BATTERY_SPACING) / 2;
+        color("cyan") {
+            translate([0, 0, offsetZ])
+                cube(BATTERY_SIZE, center=true);
+            translate([0, 0, -offsetZ])
+                cube(BATTERY_SIZE, center=true);
+        }
+    }
+    
+    spacing = mask ? PLATE_CLEARANCE : 0;
+    spacingVect = [spacing, spacing, spacing];
+    
+    base = [
+        COVER_THICKNESS - BOTTOM_THICKNESS, 
+        BATTERY_SIZE.y + 2 * BORDER, 
+        2 * BATTERY_SIZE.z + BATTERY_SPACING + 2 * BORDER
+    ];
+    
+    cover= [
+        BOTTOM_THICKNESS,
+        base.y + 2 * COVER,
+        base.z + 2 * COVER
+    ];
+    
+    translate([
+        BOTTOM - COVER_THICKNESS / 2 - PLATE_CLEARANCE, 
+        0, 
+        FULL_WIDTH / 2
+    ]) {
+        translate([COVER_THICKNESS / 2 - base.x / 2, 0, 0])
+            cube(base + spacingVect, center=true);
+        translate([cover.x / 2 - COVER_THICKNESS / 2, 0, 0])
+            cube(cover+ spacingVect, center=true);
+        translate([BATTERY_SIZE.x / 2 + COVER_THICKNESS / 2, 0, 0]) 
+            debugBattery();
+    }
+}
+
+translate([0, 0, -BOTTOM + COVER_THICKNESS])
+rotate([0, -90, 0]) {
+    % render()
+    difference() {
+        bottomPlate();
+        batteryHolder(true);
+    }
+    batteryHolder();
+}
 
 // # rotate([0, -90, 0]) square(190, center=true);

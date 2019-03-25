@@ -7,4 +7,4 @@ module spacer(thickness=1) {
     }
 }
 
-spacer(CENTER - 2 * CLEARANCE);
+spacer(CENTER);
