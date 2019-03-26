@@ -7,7 +7,7 @@ $fn = getFragmentCount(debug=DEBUG);
 BED_DIMENSION = 190;
 
 SEGMENT_WIDTH = 30;
-BOLT_DIAMETER = 3;
+BOLT_DIAMETER = 3.3; // 3 + 0.3 clearance
 
 SHORT = 60;
 LONG = sqrt(2 * BED_DIMENSION * BED_DIMENSION) - (SHORT + 3/2 * SEGMENT_WIDTH);
