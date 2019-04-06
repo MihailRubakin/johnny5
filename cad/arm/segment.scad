@@ -25,13 +25,26 @@ module segment(length, thickness=1) {
     }
 }
 
+module servoHorn(thickness=1) {
+    translate([0, 0, thickness - 1])
+        cylinder(1, d=7.5);
+    
+    translate([0, 15/2, 0])
+        cylinder(thickness, d=1);
+    translate([0, -15/2, 0])
+        cylinder(thickness, d=1);
+    translate([13/2, 0, 0])
+        cylinder(thickness, d=1);
+    translate([-13/2, 0, 0])
+        cylinder(thickness, d=1);
+}
+
 module servoSegment(length, thickness=1) {
     difference() {
         segment(length, thickness);
         
-        translate([0, -thickness, 0])
-        rotate([180, 0, 0])
-            baseServo();
+        rotate([90, 0, 0])
+            servoHorn(thickness);
     }
 }
 
