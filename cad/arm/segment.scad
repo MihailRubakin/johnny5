@@ -26,17 +26,20 @@ module segment(length, thickness=1) {
 }
 
 module servoHorn(thickness=1) {
-    translate([0, 0, thickness - 1])
-        cylinder(1, d=7.5);
+    cylinder(thickness, d=7.5);
     
-    translate([0, 15/2, 0])
-        cylinder(thickness, d=1);
-    translate([0, -15/2, 0])
-        cylinder(thickness, d=1);
-    translate([13/2, 0, 0])
-        cylinder(thickness, d=1);
-    translate([-13/2, 0, 0])
-        cylinder(thickness, d=1);
+    screwDiameter = 2;
+    distX = 13/2;
+    distY = 15/2;
+    
+    translate([distX, 0, 0])
+        cylinder(thickness, d=screwDiameter);
+    translate([-distX, 0, 0])
+        cylinder(thickness, d=screwDiameter);
+    translate([0, distY, 0])
+        cylinder(thickness, d=screwDiameter);
+    translate([0, -distY, 0])
+        cylinder(thickness, d=screwDiameter);
 }
 
 module servoSegment(length, thickness=1) {
